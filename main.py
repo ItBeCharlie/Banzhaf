@@ -1,111 +1,82 @@
-# Users will enter districts, populations, and number of board members
-# Data structure:
-# dictionary {district: {name: string, members: int, population: int}}
-
-from dis import dis
-
-
-districts = {}
+districts = []
 
 
 def main():
     global districts
-    print('You will be prompted below for district information, such as "District Name", "Number of Members", and "Population of District"')
-    enter_information = True
-    while enter_information:
-        is_correct_name = False
-        print('When you are done entering district information, enter "quit"')
-        while not is_correct_name:
-            district_name = input(
-                'Please enter the name of the given district: ')
-            if district_name.lower() == 'quit':
-                enter_information = False
-                break
-            if approve_district_name(district_name):
-                is_correct_name = True
-                districts[district_name.lower()] = {
-                    'name': district_name, 'members': None, 'population': None}
-        is_correct_members = False
-        if not enter_information:
-            break
-        while not is_correct_members:
-            response = input(
-                'Please enter the number of board members in ' + str(district_name) + ': ')
-            try:
-                board_members = int(response)
-                if approve_board_members(board_members, district_name):
-                    is_correct_members = True
-                    districts[district_name.lower()]['members'] = board_members
-            except:
-                print('Please enter a positive whole number for number of board members, "' + str(
-                    response) + '" is invalid.')
-        is_correct_population = False
-        while not is_correct_population:
-            response = input(
-                'Please enter the population in ' + str(district_name) + ': ')
-            try:
-                population = int(response)
-                if approve_population(population, district_name):
-                    is_correct_population = True
-                    districts[district_name.lower()]['population'] = population
-            except:
-                print('Please enter a positive whole number for population, "' + str(
-                    response) + '" is invalid.')
-    display_district_information()
+    is_number_good = False
+    while not is_number_good:
+        response = input('Enter number of districts: ')
+        try:
+            district_number = int(response)
+            districts = [0] * district_number
+            is_number_good = True
+        except:
+            print('Please enter a positive whole number for number of districts "' + str(
+                response) + '" is invalid.')
+    current_district_index = 0
+    current_district = current_district_index + 1
 
-
-def display_district_information():
-    for district in districts:
-        print('District Name: ' + str(districts[district]['name']), 'Board Members: ' +
-              str(districts[district]['members']), 'Population:    ' + str(districts[district]['population']), sep='\n', end='\n\n')
-
-
-def approve_population(population, district_name):
-    invalid_response = True
-    while invalid_response:
-        confirmation = input('Is "' + str(population) + '" the correct population for '
-                             + str(district_name) + '? (Y/N): ').lower()
+    while current_district_index < len(districts):
+        response = input('Enter population of District ' +
+                         str(current_district) + ": ")
+        try:
+            population = int(response)
+            districts[current_district_index] = population
+            current_district_index += 1
+            current_district = current_district_index + 1
+        except:
+            print('Please enter a positive whole number for population of district ' + str(current_district) + ', "' + str(
+                response) + '" is invalid.')
+    is_data_good = False
+    error = ''
+    while not is_data_good:
+        display_data(districts)
+        if error != '':
+            print(error)
+            error = ''
+        confirmation = input("Do you want to edit any district data? (Y/N): ")
         if confirmation == 'y':
-            is_correct_number = True
-            invalid_response = False
+            is_district_fixed = False
+            while not is_district_fixed:
+                response = input("Which district would you like to edit: ")
+                try:
+                    district_index = int(response) - 1
+                    if district_index >= len(districts) or district_index < 0:
+                        raise Exception()
+                    is_population_fixed = False
+                    while not is_population_fixed:
+                        new_population = input(
+                            "Please enter the new population for district " + str(response) + ": ")
+                        try:
+                            districts[district_index] = int(new_population)
+                            is_population_fixed = True
+                            is_district_fixed = True
+                        except:
+                            print('Please enter a positive whole number for population of district ' + str(response) + ', "' + str(
+                                new_population) + '" is invalid.')
+                except:
+                    print(
+                        '"' + response + '" is not a valid district. Please enter a positive whole number less than ' + str(len(districts) + 1))
         elif confirmation == 'n':
-            is_correct_number = False
-            invalid_response = False
+            is_data_good = True
         else:
-            print('Invalid response, please enter "Y" or "N"')
-    return is_correct_number
+            error = 'Invalid response, please enter "Y" or "N"'
+    display_data(districts)
 
 
-def approve_board_members(board_members, district_name):
-    invalid_response = True
-    while invalid_response:
-        confirmation = input('Is "' + str(board_members) + '" the correct number of board members for '
-                             + str(district_name) + '? (Y/N): ').lower()
-        if confirmation == 'y':
-            is_correct_number = True
-            invalid_response = False
-        elif confirmation == 'n':
-            is_correct_number = False
-            invalid_response = False
-        else:
-            print('Invalid response, please enter "Y" or "N"')
-    return is_correct_number
+def display_data(districts):
+    # Counts the number of digits in the number of districts
+    # If there are 1000 districts: len("1000") = 4
+    district_number = len(str(len(districts)))
 
+    print(district_number)
 
-def approve_district_name(district_name):
-    invalid_response = True
-    while invalid_response:
-        confirmation = input('Is "' + district_name +
-                             '" the correct district name? (Y/N): ').lower()
-        if confirmation == 'y':
-            is_correct_name = True
-            invalid_response = False
-        elif confirmation == 'n':
-            is_correct_name = False
-            invalid_response = False
-        else:
-            print('Invalid response, please enter "Y" or "N"')
-    return is_correct_name
+    print("District" + " "*(district_number+3) + "Population")
+
+    # print("District".ljust(district_number + 3) + "Population")
+    for district, population in enumerate(districts, start=1):
+        print("District " + str(district).rjust(district_number) +
+              ": " + str(population))
 
 
 main()
