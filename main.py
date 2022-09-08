@@ -1,8 +1,11 @@
-districts = []
-
 
 def main():
-    global districts
+    # districts = input_data()
+    get_total_number_of_votes()
+
+
+def input_data():
+    districts = []
     is_number_good = False
     while not is_number_good:
         response = input('Enter number of districts: ')
@@ -62,6 +65,19 @@ def main():
         else:
             error = 'Invalid response, please enter "Y" or "N"'
     display_data(districts)
+    return districts
+
+
+def get_total_number_of_votes():
+    is_valid_votes = False
+    while not is_valid_votes:
+        votes = input("Please enter total number of votes: ")
+        if votes.isnumeric() and '.' not in votes:
+            is_valid_votes = True
+        else:
+            print(
+                '"' + votes + '" is not a valid number. Please enter a positive whole number.')
+    return int(votes)
 
 
 def display_data(districts):
