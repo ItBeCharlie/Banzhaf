@@ -1,7 +1,13 @@
 
+import enum
+
+
 def main():
     districts = input_data()
-    get_total_number_of_votes()
+    votes = get_total_number_of_votes()
+    # districts = [10, 20, 30, 40, 50]
+    # votes = 150
+    generate_table(districts, votes)
 
 
 def input_data():
@@ -82,12 +88,52 @@ def get_total_number_of_votes():
     return int(votes)
 
 
+def generate_table(districts, votes):
+    total_population = sum(districts)
+    table_data = []
+    for count, population in enumerate(districts, start=1):
+        table_data.append([count, population, round(
+            population/total_population, 2)])
+        table_data[count-1].append(int(table_data[count-1][2]*votes))
+    # for data in table_data:
+    #     print(data)
+    print_data = table_data.copy()
+    key = ['District', 'Population', 'Pop. Proportion', '# Votes / Member']
+    max_lengths = [0]*len(table_data[0])
+    for count, data in enumerate(table_data):
+        for index in range(len(data)):
+            value = data[index]
+            if index == 2:
+                if len(str(value)) < 4:
+                    value = str(value) + '0'
+                value = str(value) + '%'
+            max_lengths[index] = max(max_lengths[index], len(str(value)))
+            print_data[count][index] = str(value)
+    for index, length in enumerate(max_lengths):
+        max_lengths[index] = max(length, len(key[index]))
+    # print(max_lengths)
+    # for data in print_data:
+    #     print(data)
+
+    # f'{"peter":{filler}<{width}}'
+    print(
+        f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
+    print(f'| {key[0]:<{max_lengths[0]}} | {key[1]:<{max_lengths[1]}} | {key[2]:<{max_lengths[2]}} | {key[3]:<{max_lengths[3]}} |')
+    print(
+        f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
+
+    for data in print_data:
+        print(f'| {data[0]:<{max_lengths[0]}} | {data[1]:<{max_lengths[1]}} | {data[2]:<{max_lengths[2]}} | {data[3]:<{max_lengths[3]}} |')
+    print(
+        f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
+
+
 def display_data(districts):
     # Counts the number of digits in the number of districts
     # If there are 1000 districts: len("1000") = 4
     district_number = len(str(len(districts)))
 
-    print(district_number)
+    # print(district_number)
 
     print_str = 'District' + ' '*(district_number+3) + '| Population'
 
