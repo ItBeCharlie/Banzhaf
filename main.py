@@ -1,6 +1,6 @@
 
 def main():
-    # districts = input_data()
+    districts = input_data()
     get_total_number_of_votes()
 
 
@@ -9,11 +9,11 @@ def input_data():
     is_number_good = False
     while not is_number_good:
         response = input('Enter number of districts: ')
-        try:
+        if response.isnumeric() and '.' not in response:
             district_number = int(response)
             districts = [0] * district_number
             is_number_good = True
-        except:
+        else:
             print('Please enter a positive whole number for number of districts "' + str(
                 response) + '" is invalid.')
     current_district_index = 0
@@ -22,12 +22,12 @@ def input_data():
     while current_district_index < len(districts):
         response = input('Enter population of District ' +
                          str(current_district) + ": ")
-        try:
+        if response.isnumeric() and '.' not in response:
             population = int(response)
             districts[current_district_index] = population
             current_district_index += 1
             current_district = current_district_index + 1
-        except:
+        else:
             print('Please enter a positive whole number for population of district ' + str(current_district) + ', "' + str(
                 response) + '" is invalid.')
     is_data_good = False
@@ -42,22 +42,24 @@ def input_data():
             is_district_fixed = False
             while not is_district_fixed:
                 response = input("Which district would you like to edit: ")
-                try:
+                if response.isnumeric() and '.' not in response:
                     district_index = int(response) - 1
                     if district_index >= len(districts) or district_index < 0:
-                        raise Exception()
-                    is_population_fixed = False
-                    while not is_population_fixed:
-                        new_population = input(
-                            "Please enter the new population for district " + str(response) + ": ")
-                        try:
-                            districts[district_index] = int(new_population)
-                            is_population_fixed = True
-                            is_district_fixed = True
-                        except:
-                            print('Please enter a positive whole number for population of district ' + str(response) + ', "' + str(
-                                new_population) + '" is invalid.')
-                except:
+                        print(
+                            '"' + response + '" is not a valid district. Please enter a positive whole number less than ' + str(len(districts) + 1))
+                    else:
+                        is_population_fixed = False
+                        while not is_population_fixed:
+                            new_population = input(
+                                "Please enter the new population for district " + str(response) + ": ")
+                            if new_population.isnumeric() and '.' not in new_population:
+                                districts[district_index] = int(new_population)
+                                is_population_fixed = True
+                                is_district_fixed = True
+                            else:
+                                print('Please enter a positive whole number for population of district ' + str(response) + ', "' + str(
+                                    new_population) + '" is invalid.')
+                else:
                     print(
                         '"' + response + '" is not a valid district. Please enter a positive whole number less than ' + str(len(districts) + 1))
         elif confirmation == 'n':
