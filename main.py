@@ -71,12 +71,15 @@ def display_data(districts):
 
     print(district_number)
 
-    print("District" + " "*(district_number+3) + "Population")
+    print_str = 'District' + ' '*(district_number+3) + '| Population'
+
+    print(print_str)
+    print('-' * (11 + district_number) + '+' + '-' * 12)
 
     # print("District".ljust(district_number + 3) + "Population")
     for district, population in enumerate(districts, start=1):
         print("District " + str(district).rjust(district_number) +
-              ": " + str(population))
+              ": | " + str(population))
 
 
 main()
