@@ -1,5 +1,5 @@
 
-import enum
+# Pop. Prop. # incorrect percentage
 
 
 def main():
