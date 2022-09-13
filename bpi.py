@@ -1,6 +1,7 @@
 ex1_1_1 = [6, 4, 3, 2, 1]  # Example input from 1.1.1
 nassau = [16, 9, 9, 7, 3, 1, 1]  # Example input from 2
 usec = [61, 55, 38, 29]
+my_ex = [50, 10, 20, 30, 40]
 
 # Single is in reference to a single required vote value to pass
 # in our case, this would be the 50% or 66% threshold.
@@ -23,7 +24,7 @@ def calc_bpi_single(input):
     swing_indexes = swing_single(input, required)
     unique_swing_indexes = dict.fromkeys(swing_indexes)
 
-    print(swing_indexes)
+    # print(swing_indexes)
     # print(unique_swing_indexes)
 
     # Initialize all counts to 0
@@ -65,8 +66,8 @@ def swing_single(input, required):
     for bit in bits:
         vote_val = 0
         for i in range(len(input)):
-            # For each bit a 0 represents a 'yes' and a 1 represents a 'no'
-            if int(bit[i]) == 0:
+            # For each bit a 1 represents a 'yes' and a 0 represents a 'no'
+            if int(bit[i]) == 1:
                 # If a member should vote then add their value to the overall vote
                 vote_val += input[i]
 
@@ -75,14 +76,20 @@ def swing_single(input, required):
         # we could inversely change every 'no' to a 'yes' and yield the same result
         for i in range(len(input)):
             swap_val = vote_val
-            if int(bit[i]) == 0:
+            if int(bit[i]) == 1:
                 swap_val -= input[i]
 
             # This condition checks if changing the single vote actually changes
             # the overall result of the entire vote
+            # print(i, bit, vote_val, swap_val, sep='\t', end='\t')
             if (swap_val >= required) != (vote_val >= required):
                 # Store the index that is a swing vote
                 swing_indexes.append(i)
+            #     print(i, end=' ')
+            # else:
+            #     print(' ', end=' ')
+            # print()
+
         # print(vote_val)
     # print(swing_indexes)
     # print('\n')
@@ -97,7 +104,7 @@ def allBits(n):
         yield ""
 
 
-print(calc_bpi_single(usec))
+# print(calc_bpi_single(ex1_1_1))
 
 # Ignore code below, it was all unused in the current iteration of the program
 

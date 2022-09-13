@@ -1,13 +1,20 @@
-
-# Pop. Prop. # incorrect percentage
+from bpi import calc_bpi_single
 
 
 def main():
     districts = input_data()
     votes = get_total_number_of_votes()
-    # districts = [10, 20, 30, 40, 50]
-    # votes = 150
-    generate_table(districts, votes)
+    # districts = [10, 20, 30]
+    # votes = 50
+    table_data = generate_table(districts, votes)
+    print(table_data)
+    sum = 0
+    bpi_data = []
+    for data in table_data:
+        sum += data[3]
+        bpi_data.append(data[3])
+    bpi_data.insert(0, sum//2)
+    print(calc_bpi_single(bpi_data))
 
 
 def input_data():
@@ -92,21 +99,20 @@ def generate_table(districts, votes):
     total_population = sum(districts)
     table_data = []
     for count, population in enumerate(districts, start=1):
-        table_data.append([count, population, round(
-            population/total_population, 2)])
+        table_data.append([count, population, population/total_population])
         table_data[count-1].append(int(table_data[count-1][2]*votes))
-    # for data in table_data:
-    #     print(data)
-    print_data = table_data.copy()
+    print_data = []
+    for data in table_data:
+        print_data.append(data.copy())
+    # print(table_data)
+
     key = ['District', 'Population', 'Pop. Proportion', '# Votes / Member']
-    max_lengths = [0]*len(table_data[0])
-    for count, data in enumerate(table_data):
+    max_lengths = [0]*len(print_data[0])
+    for count, data in enumerate(print_data):
         for index in range(len(data)):
             value = data[index]
             if index == 2:
-                if len(str(value)) < 4:
-                    value = str(value) + '0'
-                value = str(value) + '%'
+                value = format_pop_prop(float(value))
             max_lengths[index] = max(max_lengths[index], len(str(value)))
             print_data[count][index] = str(value)
     for index, length in enumerate(max_lengths):
@@ -114,7 +120,6 @@ def generate_table(districts, votes):
     # print(max_lengths)
     # for data in print_data:
     #     print(data)
-
     # f'{"peter":{filler}<{width}}'
     print(
         f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
@@ -126,6 +131,21 @@ def generate_table(districts, votes):
         print(f'| {data[0]:<{max_lengths[0]}} | {data[1]:<{max_lengths[1]}} | {data[2]:<{max_lengths[2]}} | {data[3]:<{max_lengths[3]}} |')
     print(
         f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
+    return table_data
+
+
+def format_pop_prop(value):
+    # 0.1 -> 10.00%
+    # 1.0 -> 100.00%
+    # 0.01 -> 1.00%
+    # 0.01345 -> 1.35%
+    value = str(round(value*100, 2))
+    if '.' in value:
+        if len(value.split('.')[1]) < 2:
+            value += '0'
+    else:
+        value += '.00'
+    return value + '%'
 
 
 def display_data(districts):
