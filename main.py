@@ -6,7 +6,8 @@ def main():
     votes = get_total_number_of_votes()
     # districts = [10, 20, 30]
     # votes = 50
-    table_data = generate_table(districts, votes)
+    table_data = generate_table(districts, votes, [
+                                'District', 'Population', 'Pop. Proportion', '# Votes / Member'], None)
     print(table_data)
     sum = 0
     bpi_data = []
@@ -14,7 +15,9 @@ def main():
         sum += data[3]
         bpi_data.append(data[3])
     bpi_data.insert(0, sum//2)
-    print(calc_bpi_single(bpi_data))
+    bpi = calc_bpi_single(bpi_data)
+    table_data = generate_table(districts, votes, [
+                                'District', 'Population', 'Pop. Proportion', '# Votes / Member', 'Normalized BPI Score'], bpi)
 
 
 def input_data():
@@ -95,46 +98,63 @@ def get_total_number_of_votes():
     return int(votes)
 
 
-def generate_table(districts, votes):
+def generate_table_data(districts, votes, key_len, bpi):
     total_population = sum(districts)
     table_data = []
     for count, population in enumerate(districts, start=1):
-        table_data.append([count, population, population/total_population])
-        table_data[count-1].append(int(table_data[count-1][2]*votes))
+        if key_len > 3:
+            table_data.append([count, population, population/total_population])
+            table_data[count-1].append(int(table_data[count-1][2]*votes))
+        if key_len > 4:
+            table_data[count-1].append(bpi[count-1] - table_data[count-1][2])
+    return table_data
+
+
+def generate_table(districts, votes, key, bpi):
+    table_data = generate_table_data(districts, votes, len(key), bpi)
+    print(table_data)
     print_data = []
     for data in table_data:
         print_data.append(data.copy())
     # print(table_data)
 
-    key = ['District', 'Population', 'Pop. Proportion', '# Votes / Member']
-    max_lengths = [0]*len(print_data[0])
+    max_lengths = [0]*len(key)
     for count, data in enumerate(print_data):
         for index in range(len(data)):
             value = data[index]
-            if index == 2:
-                value = format_pop_prop(float(value))
+            if index in [2, 4]:
+                value = format_percentage(float(value))
             max_lengths[index] = max(max_lengths[index], len(str(value)))
             print_data[count][index] = str(value)
     for index, length in enumerate(max_lengths):
         max_lengths[index] = max(length, len(key[index]))
-    # print(max_lengths)
+    print(max_lengths)
     # for data in print_data:
     #     print(data)
     # f'{"peter":{filler}<{width}}'
-    print(
-        f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
-    print(f'| {key[0]:<{max_lengths[0]}} | {key[1]:<{max_lengths[1]}} | {key[2]:<{max_lengths[2]}} | {key[3]:<{max_lengths[3]}} |')
-    print(
-        f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
+    for length in max_lengths:
+        print(f'+-{"":-<{length}}-', end='')
+    print('+')
+
+    for index in range(len(key)):
+        print(f'| {key[index]:<{max_lengths[index]}} ', end='')
+    print('|')
+    for length in max_lengths:
+        print(f'+-{"":-<{length}}-', end='')
+    print('+')
 
     for data in print_data:
-        print(f'| {data[0]:<{max_lengths[0]}} | {data[1]:<{max_lengths[1]}} | {data[2]:<{max_lengths[2]}} | {data[3]:<{max_lengths[3]}} |')
-    print(
-        f'+-{"":-<{max_lengths[0]}}-+-{"":-<{max_lengths[1]}}-+-{"":-<{max_lengths[2]}}-+-{"":-<{max_lengths[3]}}-+')
+        for data_index in range(len(data)):
+            print(f'| {data[data_index]:<{max_lengths[data_index]}} ', end='')
+        print('|')
+    for length in max_lengths:
+        print(f'+-{"":-<{length}}-', end='')
+    print('+')
+
     return table_data
 
 
-def format_pop_prop(value):
+def format_percentage(value):
     # 0.1 -> 10.00%
     # 1.0 -> 100.00%
     # 0.01 -> 1.00%
