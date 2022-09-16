@@ -3,12 +3,9 @@ from helper import *
 from District import District
 from stepper import iterate
 
-districts = []
-
 
 def main():
-    global districts
-    input_data()
+    districts = input_data()
     votes = get_total_number_of_votes()
     # districts = [10, 20, 30]
     # votes = 50
@@ -33,7 +30,7 @@ def main():
 
 
 def input_data():
-    global districts
+    districts = []
     is_number_good = False
     while not is_number_good:
         response = input('Enter number of districts: ')
@@ -91,6 +88,7 @@ def input_data():
             error = 'Invalid response, please enter "Y" or "N"'
 
     # display_table(['District', 'Population'])
+    return districts
 
 
 def get_total_number_of_votes():

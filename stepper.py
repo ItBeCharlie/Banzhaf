@@ -2,78 +2,91 @@ from District import District
 from helper import generate_bpi_data
 from helper import display_table
 from helper import generate_data
+import copy
+
+
+class IterDistrict:
+    def __init__(self, district):
+        self.district = district
+
+    def update_info(self, district):
+        self.district = copy.deepcopy(district)
+
+    def compare_to(self, other_district, key='norm_bpi'):
+        match key:
+            case 'norm_bpi':
+                return self.get_norm() - other_district.get_norm()
+            case 'number':
+                return self.district.number - other_district.district.number
+
+    def get_norm(self):
+        return self.district.norm_bpi
 
 
 def iterate(districts):
-    district_and_norm_bpi = build_district_tuples(districts.copy())
-    # print(district_and_norm_bpi)
-    district_and_norm_bpi_sorted = sort_district_list(
-        district_and_norm_bpi.copy())
-    # print(district_and_norm_bpi)
+    clean_districts = copy.deepcopy(districts)
+    iter_districts = []
+    for district in clean_districts:
+        iter_districts.append(IterDistrict(district))
+
+    # iter_districts_sorted = sort_iter_districts(iter_districts)
 
     max_iterations = 70
     cur_iteration = 0
     while cur_iteration < max_iterations:
-        district_and_norm_bpi_sorted = sort_district_list(
-            district_and_norm_bpi.copy())
+        sort_iter_districts(iter_districts)
+
         # for d in district_and_norm_bpi_sorted:
         #     print(d[1], end=' ')
         # print()
-        min_norm_bpi_district = district_and_norm_bpi_sorted[0][0]
-        max_norm_bpi_district = district_and_norm_bpi_sorted[-1][0]
+
+        min_norm_bpi_iter_district = iter_districts[0]
+        max_norm_bpi_iter_district = iter_districts[-1]
 
         # print('Min: ', str(min_norm_bpi_district.number),
         #       str(min_norm_bpi_district.norm_bpi))
         # print('Max: ', str(max_norm_bpi_district.number),
         #       str(max_norm_bpi_district.norm_bpi))
 
-        max_norm_bpi_district.votes_per_member -= 1
-        min_norm_bpi_district.votes_per_member += 1
+        min_norm_bpi_iter_district.district.votes_per_member -= 1
+        max_norm_bpi_iter_district.district.votes_per_member += 1
 
-        new_districts = generate_bpi_data(
-            reorder_district_list(district_and_norm_bpi))
+        reorder_iter_district_list(iter_districts)
+
+        normal_districts = iter_to_normal_districts(iter_districts)
+
+        new_districts = generate_bpi_data(normal_districts)
         new_districts = generate_data(
             new_districts, keys=['Normalized BPI Score'])
-        district_and_norm_bpi = build_district_tuples(new_districts.copy())
-        district_and_norm_bpi_sorted = sort_district_list(
-            district_and_norm_bpi.copy())
+
+        iter_districts = []
+        for district in new_districts:
+            iter_districts.append(IterDistrict(district))
 
         cur_iteration += 1
+        reorder_iter_district_list(iter_districts)
+        display_table(iter_to_normal_districts(iter_districts), ['District', 'Population', 'Pop. Proportion',
+                                                                 '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
-        display_table(reorder_district_list(district_and_norm_bpi_sorted), ['District', 'Population', 'Pop. Proportion',
-                                                                            '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
-
-    return reorder_district_list(district_and_norm_bpi_sorted)
-
-
-def build_district_tuples(districts):
-    district_and_norm_bpi = []
-    for district in districts:
-        district_and_norm_bpi.append((district, district.norm_bpi))
-    return district_and_norm_bpi
+    return iter_to_normal_districts(iter_districts)
 
 
-def sort_district_list(list):
-    list = list.copy()
-    for i in range(len(list)):
-        for j in range(len(list)-1):
-            if list[j][1] > list[j+1][1]:
-                temp = list[j]
-                list[j] = list[j+1]
-                list[j+1] = temp
-            # print(list)
-    return list
+def sort_iter_districts(districts):
+    for i in range(len(districts)):
+        for j in range(len(districts)-i-1):
+            if districts[j].compare_to(districts[j+1]) < 0:
+                districts[j], districts[j+1] = districts[j+1], districts[j]
 
 
-def reorder_district_list(list):
-    list = list.copy()
-    for i in range(len(list)):
-        for j in range(len(list)-1):
-            if list[j][0].number > list[j+1][0].number:
-                temp = list[j]
-                list[j] = list[j+1]
-                list[j+1] = temp
-    new_list = []
-    for element in list:
-        new_list.append(element[0])
-    return new_list
+def reorder_iter_district_list(districts):
+    for i in range(len(districts)):
+        for j in range(len(districts)-i-1):
+            if districts[j].compare_to(districts[j+1], key='number') > 0:
+                districts[j], districts[j+1] = districts[j+1], districts[j]
+
+
+def iter_to_normal_districts(iter_districts):
+    districts = []
+    for district in iter_districts:
+        districts.append(district.district)
+    return districts
