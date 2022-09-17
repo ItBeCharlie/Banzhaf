@@ -72,17 +72,25 @@ def iterate(districts):
 
 
 def sort_iter_districts(districts):
-    for i in range(len(districts)):
-        for j in range(len(districts)-i-1):
-            if districts[j].compare_to(districts[j+1]) < 0:
-                districts[j], districts[j+1] = districts[j+1], districts[j]
+    districts.sort(key=lambda x: x.district.norm_bpi, reverse=True)
+
+
+# def sort_iter_districts_old(districts):
+#     for i in range(len(districts)):
+#         for j in range(len(districts)-i-1):
+#             if districts[j].compare_to(districts[j+1]) < 0:
+#                 districts[j], districts[j+1] = districts[j+1], districts[j]
 
 
 def reorder_iter_district_list(districts):
-    for i in range(len(districts)):
-        for j in range(len(districts)-i-1):
-            if districts[j].compare_to(districts[j+1], key='number') > 0:
-                districts[j], districts[j+1] = districts[j+1], districts[j]
+    districts.sort(key=lambda x: x.district.number, reverse=False)
+
+
+# def reorder_iter_district_list_old(districts):
+#     for i in range(len(districts)):
+#         for j in range(len(districts)-i-1):
+#             if districts[j].compare_to(districts[j+1], key='number') > 0:
+#                 districts[j], districts[j+1] = districts[j+1], districts[j]
 
 
 def iter_to_normal_districts(iter_districts):
