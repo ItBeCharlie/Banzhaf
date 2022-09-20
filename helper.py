@@ -32,7 +32,7 @@ def generate_bpi_data(districts):
     for district in districts:
         sum += district.votes_per_member
         bpi_data[district.number - 1] = district.votes_per_member
-        print(district.number, sum)
+        # print(district.number, sum)
 
     bpi_data.insert(0, sum//2)
     bpi = calc_bpi_single(bpi_data)
@@ -76,10 +76,10 @@ def display_table(districts, keys):
         for key in keys:
             print(f'| {data[key]:<{max_lengths[key]}} ', end='')
         print('|')
-        if row % 5 == 0:
+        if row % 5 == 0 and row < len(print_data):
             print(separator_string)
 
-    print(separator_string)
+    print(separator_string, end='\n\n')
 
     return table_data
 

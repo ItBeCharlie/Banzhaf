@@ -15,7 +15,11 @@ class IterDistrict:
     def compare_to(self, other_district, key='norm_bpi'):
         match key:
             case 'norm_bpi':
-                return self.get_norm() - other_district.get_norm()
+                if self.get_norm() < other_district.get_norm():
+                    return -1
+                elif self.get_norm() > other_district.get_norm():
+                    return 1
+                return 0
             case 'number':
                 return self.district.number - other_district.district.number
 
@@ -31,7 +35,7 @@ def iterate(districts):
 
     # iter_districts_sorted = sort_iter_districts(iter_districts)
 
-    max_iterations = 70
+    max_iterations = 1000
     cur_iteration = 0
     while cur_iteration < max_iterations:
         sort_iter_districts(iter_districts)
@@ -43,13 +47,8 @@ def iterate(districts):
         min_norm_bpi_iter_district = iter_districts[0]
         max_norm_bpi_iter_district = iter_districts[-1]
 
-        # print('Min: ', str(min_norm_bpi_district.number),
-        #       str(min_norm_bpi_district.norm_bpi))
-        # print('Max: ', str(max_norm_bpi_district.number),
-        #       str(max_norm_bpi_district.norm_bpi))
-
-        min_norm_bpi_iter_district.district.votes_per_member -= 1
-        max_norm_bpi_iter_district.district.votes_per_member += 1
+        min_norm_bpi_iter_district.district.votes_per_member += 1
+        max_norm_bpi_iter_district.district.votes_per_member -= 1
 
         reorder_iter_district_list(iter_districts)
 
@@ -68,13 +67,18 @@ def iterate(districts):
         display_table(iter_to_normal_districts(iter_districts), ['District', 'Population', 'Pop. Proportion',
                                                                  '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
+        print(
+            f'Min: {str(min_norm_bpi_iter_district.district.number)} | {str(min_norm_bpi_iter_district.district.norm_bpi*100)}')
+        print(
+            f'Max: {str(max_norm_bpi_iter_district.district.number)} | {str(max_norm_bpi_iter_district.district.norm_bpi*100)}', end='\n\n')
+
     return iter_to_normal_districts(iter_districts)
 
 
 def sort_iter_districts(districts):
     for i in range(len(districts)):
         for j in range(len(districts)-i-1):
-            if districts[j].compare_to(districts[j+1]) < 0:
+            if districts[j].compare_to(districts[j+1]) > 0:
                 districts[j], districts[j+1] = districts[j+1], districts[j]
 
 

@@ -2,11 +2,13 @@ from bpi import calc_bpi_single
 from helper import *
 from District import District
 from stepper import iterate
+from testing_init import init
 
 
 def main():
-    districts = input_data()
-    votes = get_total_number_of_votes()
+    # districts = input_data()
+    # votes = get_total_number_of_votes()
+    districts, votes = init()
     # districts = [10, 20, 30]
     # votes = 50
     districts = generate_data(districts, votes, ['District', 'Population',

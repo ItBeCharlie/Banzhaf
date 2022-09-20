@@ -38,7 +38,7 @@ def calc_bpi_single(input):
     for index in swing_indexes:
         unique_swing_indexes[index] += 1
 
-    print(unique_swing_indexes)
+    # print(unique_swing_indexes)
 
     # Create an array with the probabilities each
     # voter is the swing vote
