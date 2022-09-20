@@ -9,9 +9,6 @@ class IterDistrict:
     def __init__(self, district):
         self.district = district
 
-    def update_info(self, district):
-        self.district = copy.deepcopy(district)
-
     def compare_to(self, other_district, key='norm_bpi'):
         match key:
             case 'norm_bpi':
@@ -40,12 +37,17 @@ def iterate(districts):
     while cur_iteration < max_iterations:
         sort_iter_districts(iter_districts)
 
-        # for d in district_and_norm_bpi_sorted:
-        #     print(d[1], end=' ')
+        # for d in iter_districts:
+        #     print(round(d.district.norm_bpi, 5), end=' ')
         # print()
 
         min_norm_bpi_iter_district = iter_districts[0]
         max_norm_bpi_iter_district = iter_districts[-1]
+
+        print(
+            f'Min: {str(min_norm_bpi_iter_district.district.number)} | {str(min_norm_bpi_iter_district.district.norm_bpi*100)}')
+        print(
+            f'Max: {str(max_norm_bpi_iter_district.district.number)} | {str(max_norm_bpi_iter_district.district.norm_bpi*100)}', end='\n\n')
 
         min_norm_bpi_iter_district.district.votes_per_member += 1
         max_norm_bpi_iter_district.district.votes_per_member -= 1
@@ -67,16 +69,11 @@ def iterate(districts):
         display_table(iter_to_normal_districts(iter_districts), ['District', 'Population', 'Pop. Proportion',
                                                                  '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
-        print(
-            f'Min: {str(min_norm_bpi_iter_district.district.number)} | {str(min_norm_bpi_iter_district.district.norm_bpi*100)}')
-        print(
-            f'Max: {str(max_norm_bpi_iter_district.district.number)} | {str(max_norm_bpi_iter_district.district.norm_bpi*100)}', end='\n\n')
-
     return iter_to_normal_districts(iter_districts)
 
 
 def sort_iter_districts(districts):
-    districts.sort(key=lambda x: x.district.norm_bpi, reverse=True)
+    districts.sort(key=lambda x: x.district.norm_bpi, reverse=False)
 
 
 # def sort_iter_districts_old(districts):
