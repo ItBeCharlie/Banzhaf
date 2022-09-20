@@ -8,7 +8,7 @@ from testing_init import init
 def main():
     # districts = input_data()
     # votes = get_total_number_of_votes()
-    districts, votes = init(1)
+    districts, votes = init(2)
     # districts = [10, 20, 30]
     # votes = 50
     districts = generate_data(districts, votes, ['District', 'Population',
