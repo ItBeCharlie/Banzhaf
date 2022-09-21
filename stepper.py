@@ -47,7 +47,10 @@ def iterate(districts):
         cur_sums = {}
 
         advance = False
+        count = 0
         while not advance:
+            count += 1
+            print(count)
             new_iter_districts = step(
                 iter_districts, min_index, max_index, trace=False)
 
@@ -68,6 +71,7 @@ def iterate(districts):
                     # Go with the best sum this step iteration
                     max_sum = 0
                     for key in cur_sums:
+                        # Should be min
                         max_sum = max(max_sum, key)
                     new_iter_districts = cur_sums[max_sum]
                     advance = True
