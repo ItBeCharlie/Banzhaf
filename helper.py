@@ -11,17 +11,17 @@ def is_int(val):
     return False
 
 
-def format_percentage(value):
+def format_percentage(value, decimals=2):
     # 0.1 -> 10.00%
     # 1.0 -> 100.00%
     # 0.01 -> 1.00%
     # 0.01345 -> 1.35%
-    value = str(round(value*100, 2))
+    value = str(round(value*100, decimals))
     if '.' in value:
-        if len(value.split('.')[1]) < 2:
+        while len(value.split('.')[1]) < decimals:
             value += '0'
     else:
-        value += '.00'
+        value += '.' + '0'*decimals
     return value + '%'
 
 

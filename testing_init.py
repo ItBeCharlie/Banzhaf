@@ -21,8 +21,8 @@ def init(case):
     elif case == 2:
         for i in range(1, 5):
             districts.append(District(i))
-        districts[0].population = 10
-        districts[1].population = 20
-        districts[2].population = 30
-        districts[3].population = 40
-        return districts, 100
+        districts[0].population = 150
+        districts[1].population = 200
+        districts[2].population = 250
+        districts[3].population = 300
+        return districts, 500
