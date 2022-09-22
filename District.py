@@ -55,3 +55,12 @@ class District:
                 val = round(val)
             print_data[key] = str(val)
         return print_data
+
+    def copy(self):
+        copy = District(self.number)
+        copy.population = self.population
+        copy.population_proportion = self.population_proportion
+        copy.votes_per_member = self.votes_per_member
+        copy.norm_bpi = self.norm_bpi
+        copy.bpi = self.bpi
+        return copy
