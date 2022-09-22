@@ -100,3 +100,12 @@ def generate_data(districts, votes=None, keys=[]):
                                      district.population_proportion)
 
     return districts
+
+
+def franklin_deviation(districts):
+    min_score = 999999
+    max_score = 0
+    for district in districts:
+        min_score = min(min_score, district.norm_bpi)
+        max_score = max(max_score, district.norm_bpi)
+    return max_score - min_score

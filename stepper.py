@@ -2,6 +2,7 @@ from District import District
 from helper import generate_bpi_data
 from helper import display_table
 from helper import generate_data
+from helper import franklin_deviation
 import copy
 
 
@@ -23,18 +24,27 @@ class IterDistrict:
     def get_norm(self):
         return self.district.norm_bpi
 
+    def copy_self(self):
+        return IterDistrict(self.district.copy_self())
 
-def iterate(districts):
-    clean_districts = copy.deepcopy(districts)
+
+def iterate(districts, trace=False):
+    # clean_districts = copy_districts(districts)
     iter_districts = []
-    for district in clean_districts:
-        iter_districts.append(IterDistrict(district))
+    for district in districts:
+        iter_districts.append(IterDistrict(district.copy_self()))
 
     # iter_districts_sorted = sort_iter_districts(iter_districts)
 
-    max_iterations = 10000
+    best_sum = sum_norm_bpi(iter_districts)
+    original_sum = best_sum
+    best_config = copy_iter_districts(iter_districts)
+
+    max_iterations = 1000
     cur_iteration = 0
     while cur_iteration < max_iterations:
+        if cur_iteration % 100 == 0:
+            print(cur_iteration)
         sort_iter_districts(iter_districts)
 
         # for d in iter_districts:
@@ -50,42 +60,75 @@ def iterate(districts):
         count = 0
         while not advance:
             count += 1
-            print(count)
-            new_iter_districts = step(
-                iter_districts, min_index, max_index, trace=False)
+            # print(count)
 
-            new_sum = sum_norm_bpi(new_iter_districts)
+            new_iter_districts, valid_iter_district = step(
+                copy_iter_districts(iter_districts), min_index, max_index, trace=trace)
 
-            cur_sums[new_sum] = copy.deepcopy(new_iter_districts)
+            if valid_iter_district:
+                new_sum = sum_norm_bpi(new_iter_districts)
+                cur_sums[new_sum] = copy_iter_districts(new_iter_districts)
+            if trace:
+                display_copy = copy_iter_districts(new_iter_districts)
 
-            if new_sum > old_sum:
-                # Go to next min/max index, whichever is a higher score
-                iter_districts[min_index].district.votes_per_member -= 1
-                iter_districts[max_index].district.votes_per_member += 1
-                if abs(iter_districts[min_index+1].get_norm()) > abs(iter_districts[max_index-1].get_norm()):
-                    min_index += 1
+                sort_iter_districts(display_copy)
+                print(
+                    f'Min Index: {display_copy[min_index].district.number}\nMax Index: {display_copy[max_index].district.number}')
+                if valid_iter_district:
+                    print(f'Sum: {new_sum*100}\n')
                 else:
-                    max_index -= 1
-                print(min_index, max_index)
-                if min_index >= max_index:
-                    # Go with the best sum this step iteration
-                    max_sum = 0
-                    for key in cur_sums:
-                        # Should be min
-                        max_sum = max(max_sum, key)
-                    new_iter_districts = cur_sums[max_sum]
-                    advance = True
+                    print()
 
-            sort_iter_districts(iter_districts)
+            if trace:
+                display_table(iter_to_normal_districts(display_copy), [
+                    'District', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+            # reorder_iter_district_list(new_iter_districts)
+
+            # if new_sum > old_sum:
+
+            # Go to next min/max index, whichever is a higher score
+
+            # Step approach
+            if abs(iter_districts[min_index+1].get_norm()) > abs(iter_districts[max_index-1].get_norm()):
+                min_index += 1
+            else:
+                max_index -= 1
+
+            if min_index >= max_index:
+                # Go with the best sum this step iteration
+                min_sum = 999999999999999999
+                for key in cur_sums:
+                    min_sum = min(min_sum, key)
+                if trace:
+                    print(f'Keys: {cur_sums.keys()}\nMin Sum: {min_sum}\n')
+                new_iter_districts = copy_iter_districts(cur_sums[min_sum])
+                advance = True
 
         iter_districts = new_iter_districts
 
-        cur_iteration += 1
-        reorder_iter_district_list(iter_districts)
-        display_table(iter_to_normal_districts(iter_districts), ['District', 'Population', 'Pop. Proportion',
-                                                                 '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+        sort_iter_districts(iter_districts)
 
-    return iter_to_normal_districts(iter_districts)
+        if trace:
+            print(f'Old Sum: {old_sum}\nNew Sum: {min_sum}\n')
+
+        reorder_iter_district_list(iter_districts)
+
+        if min_sum <= best_sum:
+            best_config = copy_iter_districts(iter_districts)
+
+        cur_iteration += 1
+
+        if trace:
+            display_table(iter_to_normal_districts(iter_districts), ['District', 'Population', 'Pop. Proportion',
+                                                                     '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+    print(f'Original Sum: {original_sum}\nBest Sum:     {best_sum}\n\nOriginal Frankin: {franklin_deviation(districts)}\nNew Franklin:     {franklin_deviation(iter_to_normal_districts(best_config))}\n')
+
+    display_table(districts, ['District', 'Population', 'Pop. Proportion',
+                                                        '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+    return iter_to_normal_districts(best_config)
 
 
 def step(iter_districts, min_index, max_index, trace=False):
@@ -94,9 +137,11 @@ def step(iter_districts, min_index, max_index, trace=False):
             f'Min: {str(iter_districts[min_index].district.number)} | {str(iter_districts[min_index].district.norm_bpi*100)}')
         print(
             f'Max: {str(iter_districts[max_index].district.number)} | {str(iter_districts[max_index].district.norm_bpi*100)}', end='\n\n')
+
     iter_districts[min_index].district.votes_per_member += 1
     iter_districts[max_index].district.votes_per_member -= 1
-
+    if iter_districts[max_index].district.votes_per_member < 2:
+        return iter_districts, False
     reorder_iter_district_list(iter_districts)
 
     normal_districts = iter_to_normal_districts(iter_districts)
@@ -109,7 +154,7 @@ def step(iter_districts, min_index, max_index, trace=False):
     for district in new_districts:
         iter_districts.append(IterDistrict(district))
 
-    return iter_districts
+    return iter_districts, True
 
 
 def sort_iter_districts(districts):
@@ -146,3 +191,17 @@ def sum_norm_bpi(iter_districts):
     for district in iter_districts:
         sum += abs(district.district.norm_bpi)
     return sum
+
+
+def copy_districts(districts):
+    new_districts = []
+    for district in districts:
+        new_districts.append(district.copy_self())
+    return new_districts
+
+
+def copy_iter_districts(iter_districts):
+    new_iter_districts = []
+    for district in iter_districts:
+        new_iter_districts.append(district.copy_self())
+    return new_iter_districts
