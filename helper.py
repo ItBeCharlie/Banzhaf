@@ -109,3 +109,10 @@ def franklin_deviation(districts):
         min_score = min(min_score, district.norm_bpi)
         max_score = max(max_score, district.norm_bpi)
     return max_score - min_score
+
+
+def copy_iter_districts(iter_districts):
+    new_iter_districts = []
+    for district in iter_districts:
+        new_iter_districts.append(district.clone())
+    return new_iter_districts

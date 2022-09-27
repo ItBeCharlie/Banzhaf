@@ -3,32 +3,38 @@ from helper import *
 from District import District
 from stepper import iterate
 from testing_init import init
+from DistrictSet import DistrictSet
 
 
 def main():
     # districts = input_data()
     # votes = get_total_number_of_votes()
     districts, votes = init(1)
+    districts = DistrictSet(districts, votes)
     # districts = [10, 20, 30]
-    # votes = 50
-    districts = generate_data(districts, votes, ['District', 'Population',
-                                                 'Pop. Proportion', '# Votes / Member'])
+    # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
 
-    display_table(districts, ['District', 'Population',
-                  'Pop. Proportion', '# Votes / Member'])
-
-    generate_bpi_data(districts)
-
-    districts = generate_data(districts, votes, ['District', 'Population', 'Pop. Proportion',
-                                                 '# Votes / Member', 'Normalized BPI Score'])
-
-    display_table(districts, ['District', 'Population', 'Pop. Proportion',
+    display_table(districts.get_district_list(), ['District', 'Population', 'Pop. Proportion',
                   '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
-    districts = iterate(districts)
+    orig_districts = districts.clone()
+    votes = 0
+    prev_franklin = 99999
+    threshold = 0.0001
+    while votes < 5000:
+        votes += 100
+        districts = DistrictSet(orig_districts.get_district_list(), votes)
 
-    display_table(districts, ['District', 'Population', 'Pop. Proportion',
-                  '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+        districts.update_districts(iterate(districts.get_district_list(),
+                                           iterations=votes // 2))
+
+        cur_franklin = districts.franklin
+        print(f'Votes: {votes}')
+
+        if abs(cur_franklin - prev_franklin) < threshold:
+            break
+
+        prev_franklin = cur_franklin
 
 
 def input_data():

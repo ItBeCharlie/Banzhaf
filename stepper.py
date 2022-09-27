@@ -1,10 +1,4 @@
-from District import District
-from helper import generate_bpi_data
-from helper import display_table
-from helper import generate_data
-from helper import franklin_deviation
-from helper import format_percentage
-import random as r
+from helper import *
 import time
 
 
@@ -26,15 +20,15 @@ class IterDistrict:
     def get_norm(self):
         return self.district.norm_bpi
 
-    def copy_self(self):
-        return IterDistrict(self.district.copy_self())
+    def clone(self):
+        return IterDistrict(self.district.clone())
 
 
-def iterate(districts, trace=False):
+def iterate(districts, trace=False, iterations=200):
     # clean_districts = copy_districts(districts)
     iter_districts = []
     for district in districts:
-        iter_districts.append(IterDistrict(district.copy_self()))
+        iter_districts.append(IterDistrict(district.clone()))
 
     # iter_districts_sorted = sort_iter_districts(iter_districts)
 
@@ -42,7 +36,7 @@ def iterate(districts, trace=False):
     original_sum = best_sum
     best_config = copy_iter_districts(iter_districts)
 
-    max_iterations = 200
+    max_iterations = iterations
     time_steps = 20
     cur_iteration = 0
     display_step = max_iterations // time_steps
@@ -63,22 +57,15 @@ def iterate(districts, trace=False):
 
         cur_sums = {}
 
-        rand = r.random()
-
         advance = False
         # count = 0
         while not advance:
-            # count += 1
-            # print(count)
-
-            # Go to next min/max index, whichever is a higher score
-
-            if cur_iteration > max_iterations * 1.1:
-                min_index, max_index = walk_down_approach(
-                    iter_districts, min_index, max_index)
-            else:
-                min_index, max_index = brute_force_approach(
-                    iter_districts, min_index, max_index)
+            # if cur_iteration > max_iterations * 1.1:
+            #     min_index, max_index = walk_down_approach(
+            #         iter_districts, min_index, max_index)
+            # else:
+            min_index, max_index = brute_force_approach(
+                iter_districts, min_index, max_index)
 
             if min_index >= max_index:
                 # Go with the best sum this step iteration
@@ -130,7 +117,7 @@ def iterate(districts, trace=False):
 
         reorder_iter_district_list(iter_districts)
 
-        if min_sum <= best_sum:
+        if min_sum < best_sum:
             best_config = copy_iter_districts(iter_districts)
             best_sum = min_sum
 
@@ -146,8 +133,11 @@ def iterate(districts, trace=False):
 
     print(f'Original Sum: {format_percentage(original_sum, 10)}\nBest Sum:     {format_percentage(best_sum, 10)}\n\nOriginal Frankin: {format_percentage(franklin_deviation(districts), 10)}\nNew Franklin:     {format_percentage(franklin_deviation(iter_to_normal_districts(best_config)), 10)}\n')
 
-    display_table(districts, ['District', 'Population', 'Pop. Proportion',
-                                                        '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+    # display_table(districts, ['District', 'Population', 'Pop. Proportion',
+    # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+    display_table(iter_to_normal_districts(best_config), ['District', 'Population', 'Pop. Proportion',
+                                                          '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     return iter_to_normal_districts(best_config)
 
@@ -236,17 +226,3 @@ def sum_norm_bpi(iter_districts):
     for district in iter_districts:
         sum += abs(district.district.norm_bpi)
     return sum
-
-
-def copy_districts(districts):
-    new_districts = []
-    for district in districts:
-        new_districts.append(district.copy_self())
-    return new_districts
-
-
-def copy_iter_districts(iter_districts):
-    new_iter_districts = []
-    for district in iter_districts:
-        new_iter_districts.append(district.copy_self())
-    return new_iter_districts

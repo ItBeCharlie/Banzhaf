@@ -56,7 +56,7 @@ class District:
             print_data[key] = str(val)
         return print_data
 
-    def copy_self(self):
+    def clone(self):
         copy = District(self.number)
         copy.population = self.population
         copy.population_proportion = self.population_proportion
