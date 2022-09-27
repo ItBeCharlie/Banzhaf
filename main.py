@@ -14,27 +14,44 @@ def main():
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
 
-    display_table(districts.get_district_list(), ['District', 'Population', 'Pop. Proportion',
-                  '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+    districts.display_table(['District', 'Population', 'Pop. Proportion',
+                             '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     orig_districts = districts.clone()
     votes = 0
+
     prev_franklin = 99999
     threshold = 0.0001
+    best_franklin = 99999
+    best_set = districts.clone()
+
+    district_sets = []
+
     while votes < 5000:
         votes += 100
-        districts = DistrictSet(orig_districts.get_district_list(), votes)
+        districts = DistrictSet(best_set.get_district_list(), votes)
+
+        districts.override_votes(best_set.districts, votes / best_set.votes)
 
         districts.update_districts(iterate(districts.get_district_list(),
-                                           iterations=votes // 2))
+                                           iterations=votes // 3))
 
         cur_franklin = districts.franklin
+        if cur_franklin < best_franklin:
+            best_franklin = cur_franklin
+            best_set = districts.clone()
         print(f'Votes: {votes}')
+
+        district_sets.append(districts.clone())
 
         if abs(cur_franklin - prev_franklin) < threshold:
             break
 
         prev_franklin = cur_franklin
+
+    for district_set in district_sets:
+        district_set.display_table(['District', 'Population', 'Pop. Proportion',
+                                    '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
 
 def input_data():

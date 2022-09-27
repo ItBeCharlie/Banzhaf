@@ -11,6 +11,7 @@ class DistrictSet:
         self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
+        self.generate_data()
         self.update_districts(self.districts)
 
     def update_districts(self, districts):
@@ -19,7 +20,6 @@ class DistrictSet:
         self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
-        self.generate_data()
         self.set_min_max()
         self.franklin_score()
         self.norm_sum_score()
@@ -58,3 +58,47 @@ class DistrictSet:
         self.districts = generate_bpi_data(self.get_district_list())
         for district in self.districts:
             district.norm_bpi = district.bpi - district.population_proportion
+
+    def override_votes(self, districts, vote_scale):
+        for index, district in enumerate(self.districts):
+            district.votes_per_member = int(
+                districts[index].votes_per_member * vote_scale)
+
+    def display_table(self, keys):
+        # table_data = generate_table_data(districts, votes, len(key), bpi)
+        table_data = []
+        print_data = []
+        max_lengths = dict.fromkeys(keys)
+
+        for key in keys:
+            max_lengths[key] = len(key)
+
+        for district in self.districts:
+            cur_data = district.print_data(keys)
+            print_data.append(cur_data)
+            for key in keys:
+                max_lengths[key] = max(max_lengths[key], len(cur_data[key]))
+
+        # print(max_lengths)
+
+        separator_string = ''
+
+        for key in max_lengths:
+            separator_string += f'+-{"":-<{max_lengths[key]}}-'
+        separator_string += '+'
+        print(separator_string)
+
+        for key in keys:
+            print(f'| {key:<{max_lengths[key]}} ', end='')
+        print('|')
+
+        print(separator_string)
+
+        for row, data in enumerate(print_data, start=1):
+            for key in keys:
+                print(f'| {data[key]:<{max_lengths[key]}} ', end='')
+            print('|')
+            if row % 5 == 0 and row < len(print_data):
+                print(separator_string)
+
+        print(separator_string, end='\n\n')
