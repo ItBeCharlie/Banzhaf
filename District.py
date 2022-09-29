@@ -16,34 +16,61 @@ class District:
             return True
         return False
 
-    def get_val(self, key):
-        match key:
-            case 'District':
-                return self.number
-            case 'Population':
-                return self.population
-            case 'Pop. Proportion':
-                return self.population_proportion
-            case '# Votes / Member':
-                return self.votes_per_member
-            case 'Normalized BPI Score':
-                return self.norm_bpi
-            case 'BPI Score':
-                return self.bpi
+    def compare_to(self, district, key='District') -> int:
+        """
+        ## Valid Keys:
+        District | 
+        Population | 
+        Pop. Proportion | 
+        '# Votes / Member' | 
+        Normalized BPI Score | 
+        BPI Score | 
+        """
+        return self.get_val(key) - district.get_val(key)
+
+    def get_val(self, key='District'):
+        """
+        ## Valid Keys:
+        District
+        Population
+        Pop. Proportion
+        '# Votes / Member'
+        Normalized BPI Score
+        BPI Score
+        """
+        if key == 'District':
+            return self.number
+        elif key == 'Population':
+            return self.population
+        elif key == 'Pop. Proportion':
+            return self.population_proportion
+        elif key == '# Votes / Member':
+            return self.votes_per_member
+        elif key == 'Normalized BPI Score':
+            return self.norm_bpi
+        elif key == 'BPI Score':
+            return self.bpi
         return None
 
     def set_val(self, key, val):
-        match key:
-            case 'Population':
-                self.population = val
-            case 'Pop. Proportion':
-                self.population_proportion = val
-            case '# Votes / Member':
-                self.votes_per_member = val
-            case 'Normalized BPI Score':
-                self.norm_bpi = val
-            case 'BPI Score':
-                self.bpi = val
+        """
+        ## Valid Keys:
+        Population
+        Pop. Proportion
+        '# Votes / Member'
+        Normalized BPI Score
+        BPI Score
+        """
+        if key == 'Population':
+            self.population = val
+        elif key == 'Pop. Proportion':
+            self.population_proportion = val
+        elif key == '# Votes / Member':
+            self.votes_per_member = val
+        elif key == 'Normalized BPI Score':
+            self.norm_bpi = val
+        elif key == 'BPI Score':
+            self.bpi = val
 
     def print_data(self, keys):
         print_data = {}

@@ -11,11 +11,14 @@ class DistrictSet:
         self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
-        self.generate_data()
+        self.generate_data(update_votes=True)
         self.update_districts(self.districts)
 
     def update_districts(self, districts):
         self.districts = deepcopy(districts)
+        self.update_data()
+
+    def update_data(self):
         self.min_deviation = 999999
         self.max_deviation = 0
         self.franklin = 0
@@ -23,6 +26,18 @@ class DistrictSet:
         self.set_min_max()
         self.franklin_score()
         self.norm_sum_score()
+
+    def get_val(self, key='Normalized BPI Score'):
+        if key == 'Votes':
+            return self.votes
+        elif key == 'Min Deviation':
+            return self.min_deviation
+        elif key == 'Max Deviation':
+            return self.max_deviation
+        elif key == 'Franklin':
+            return self.franklin
+        elif key == 'Normalized BPI Score':
+            return self.norm_sum
 
     def set_min_max(self):
         for district in self.districts:
@@ -45,15 +60,16 @@ class DistrictSet:
     def get_district_list(self):
         return self.districts
 
-    def generate_data(self):
+    def generate_data(self, update_votes=False):
         total_population = 0
         for district in self.districts:
             total_population += district.population
         for district in self.districts:
             district.set_val('Pop. Proportion',
                              district.population/total_population)
-            district.set_val(
-                '# Votes / Member', district.population_proportion*self.votes)
+            if update_votes:
+                district.set_val(
+                    '# Votes / Member', district.population_proportion*self.votes)
 
         self.districts = generate_bpi_data(self.get_district_list())
         for district in self.districts:
@@ -140,3 +156,15 @@ class DistrictSet:
                 print(separator_string)
 
         print(separator_string, end='\n\n')
+
+    def sort_districts(self, key='District', reverse=False):
+        """
+        ## Valid Keys:
+        District | 
+        Population | 
+        Pop. Proportion | 
+        '# Votes / Member' | 
+        Normalized BPI Score | 
+        BPI Score | 
+        """
+        self.districts.sort(key=lambda x: x.get_val(key), reverse=reverse)

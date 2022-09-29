@@ -33,8 +33,8 @@ def main():
 
         districts.override_votes(best_set.districts, votes / best_set.votes)
 
-        districts.update_districts(iterate(districts.get_district_list(),
-                                           iterations=votes // 3))
+        districts = iterate(districts, iterations=votes //
+                            3, score_metric='Normalized BPI Score')
 
         cur_franklin = districts.franklin
         if cur_franklin < best_franklin:
