@@ -29,12 +29,13 @@ def main():
 
     while votes < 5000:
         votes += 100
-        districts = DistrictSet(best_set.get_district_list(), votes)
+        districts = DistrictSet(best_set.get_district_list(
+        ), votes, vote_scale=votes / best_set.votes)
 
-        districts.override_votes(best_set.districts, votes / best_set.votes)
+        # districts.override_votes(best_set.districts)
 
-        districts = iterate(districts, iterations=votes //
-                            3, score_metric='Normalized BPI Score')
+        districts = iterate(districts, iterations=20,
+                            score_metric='Franklin')
 
         cur_franklin = districts.franklin
         if cur_franklin < best_franklin:

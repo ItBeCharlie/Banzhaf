@@ -3,31 +3,12 @@ from DistrictSet import DistrictSet
 import time
 
 
-class IterDistrict:
-    def __init__(self, district):
-        self.district = district
-
-    def compare_to(self, other_district, key='norm_bpi'):
-        match key:
-            case 'norm_bpi':
-                if self.get_norm() < other_district.get_norm():
-                    return -1
-                elif self.get_norm() > other_district.get_norm():
-                    return 1
-                return 0
-            case 'number':
-                return self.district.number - other_district.district.number
-
-    def get_norm(self):
-        return self.district.norm_bpi
-
-    def clone(self):
-        return IterDistrict(self.district.clone())
-
-
 def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='Normalized BPI Score'):
     # clean_districts = copy_districts(districts)
     iter_districts = districts.clone()
+
+    iter_districts.display_table(['District', 'Population', 'Pop. Proportion',
+                                  '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     # iter_districts = []
     # for district in districts:
@@ -35,8 +16,8 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
 
     # iter_districts_sorted = sort_iter_districts(iter_districts)
 
-    best_sum = iter_districts.get_val(score_metric)
-    original_sum = best_sum
+    best_score = iter_districts.get_val(key=score_metric)
+    original_score = best_score
     best_config = iter_districts.clone()
 
     max_iterations = iterations
@@ -50,16 +31,16 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
             print(
                 f'\r[{"@"*(cur_iteration//display_step)}{"-"*((max_iterations//display_step)-(cur_iteration//display_step))}]', end='')
 
-        iter_districts.sort_districts(score_metric)
+        iter_districts.sort_districts(key='Normalized BPI Score')
 
         # for d in iter_districts:
         #     print(round(d.district.norm_bpi, 5), end=' ')
         # print()
-        old_sum = iter_districts.get_val(score_metric)
+        old_score = iter_districts.get_val(key=score_metric)
         min_index = -1
         max_index = -1
 
-        cur_sums = {}
+        cur_scores = {}
 
         advance = False
         # count = 0
@@ -73,17 +54,17 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
 
             if min_index >= max_index:
                 # Go with the best sum this step iteration
-                min_sum = 999999999999999999
+                min_score = 999999999999999999
                 # if len(cur_sums) == 0:
                 #     new_iter_districts = iter_districts
                 #     cur_iteration = max_iterations
                 #     advance = True
                 #     continue
-                for key in cur_sums:
-                    min_sum = min(min_sum, key)
+                for key in cur_scores:
+                    min_score = min(min_score, key)
                 if trace:
-                    print(f'Keys: {cur_sums.keys()}\nMin Sum: {min_sum}\n')
-                new_iter_districts = cur_sums[min_sum].clone()
+                    print(f'Keys: {cur_scores.keys()}\nMin Sum: {min_score}\n')
+                new_iter_districts = cur_scores[min_score].clone()
                 advance = True
                 continue
 
@@ -91,8 +72,8 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
                 iter_districts.clone(), min_index, max_index, trace=trace)
 
             if valid_iter_district:
-                new_sum = new_iter_districts.get_val(score_metric)
-                cur_sums[new_sum] = new_iter_districts.clone()
+                new_score = new_iter_districts.get_val(key=score_metric)
+                cur_scores[new_score] = new_iter_districts.clone()
             if trace:
                 display_copy = new_iter_districts.clone()
 
@@ -100,7 +81,7 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
                 print(
                     f'Min Index: {display_copy.districts[min_index].number}\nMax Index: {display_copy.districts[max_index].number}')
                 if valid_iter_district:
-                    print(f'Sum: {new_sum*100}\n')
+                    print(f'Sum: {new_score*100}\n')
                 else:
                     print()
 
@@ -114,16 +95,20 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
 
         iter_districts = new_iter_districts
 
-        iter_districts.sort_districts(score_metric)
+        iter_districts.update_data()
+
+        # iter_districts.sort_districts(key='Normalized BPI Score')
 
         if trace:
-            print(f'Old Sum: {old_sum}\nNew Sum: {min_sum}\n')
+            print(f'Old Sum: {old_score}\nNew Sum: {min_score}\n')
 
-        iter_districts.sort_districts('District')
+        iter_districts.sort_districts(key='District')
 
-        if min_sum < best_sum:
+        if min_score < best_score:
             best_config = iter_districts.clone()
-            best_sum = min_sum
+            # best_config.display_table([
+            # 'District', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+            best_score = min_score
 
         cur_iteration += 1
 
@@ -135,7 +120,7 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
     print(f'\r[{"@"*(max_iterations//display_step)}]')
     print(f'Total time: {end_time-start_time}s')
 
-    print(f'Original Sum: {format_percentage(original_sum, 10)}\nBest Sum:     {format_percentage(best_sum, 10)}\n\nOriginal Frankin: {format_percentage((districts.franklin), 10)}\nNew Franklin:     {format_percentage((best_config.franklin), 10)}\n')
+    print(f'Original Score: {format_percentage(original_score, 10)}\nBest Score:     {format_percentage(best_score, 10)}\n\nOriginal Frankin: {format_percentage((districts.franklin), 10)}\nNew Franklin:     {format_percentage((best_config.franklin), 10)}\n')
 
     # display_table(districts, ['District', 'Population', 'Pop. Proportion',
     # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])

@@ -4,14 +4,15 @@ from helper import generate_bpi_data, generate_data
 
 
 class DistrictSet:
-    def __init__(self, districts, votes):
+    def __init__(self, districts, votes, vote_scale=1):
         self.districts = deepcopy(districts)
         self.votes = votes
+        self.vote_scale = vote_scale
         self.min_deviation = 999999
         self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
-        self.generate_data(update_votes=True)
+        self.generate_data(update_votes=True, update_pop_prop=True)
         self.update_districts(self.districts)
 
     def update_districts(self, districts):
@@ -55,19 +56,25 @@ class DistrictSet:
         new_districts = []
         for district in self.districts:
             new_districts.append(district.clone())
-        return DistrictSet(new_districts, self.votes)
+        new_set = DistrictSet(new_districts, self.votes)
+        new_set.override_votes(new_districts)
+        new_set.vote_scale = self.vote_scale
+        return new_set
 
     def get_district_list(self):
         return self.districts
 
-    def generate_data(self, update_votes=False):
+    def generate_data(self, update_votes=False, update_pop_prop=False):
         total_population = 0
         for district in self.districts:
             total_population += district.population
-        for district in self.districts:
-            district.set_val('Pop. Proportion',
-                             district.population/total_population)
-            if update_votes:
+
+        if update_pop_prop:
+            for district in self.districts:
+                district.set_val('Pop. Proportion',
+                                 district.population/total_population)
+        if update_votes:
+            for district in self.districts:
                 district.set_val(
                     '# Votes / Member', district.population_proportion*self.votes)
 
@@ -75,13 +82,15 @@ class DistrictSet:
         for district in self.districts:
             district.norm_bpi = district.bpi - district.population_proportion
 
-    def override_votes(self, districts, vote_scale):
+        self.update_data()
+
+    def override_votes(self, districts):
         for index, district in enumerate(self.districts):
             district.votes_per_member = int(
-                districts[index].votes_per_member * vote_scale)
-        print(self.sum_of_votes())
+                districts[index].votes_per_member * self.vote_scale)
+        # print(self.sum_of_votes())
         self.fix_votes()
-        print(self.sum_of_votes())
+        # print(self.sum_of_votes())
 
     def sum_of_votes(self):
         count = 0
