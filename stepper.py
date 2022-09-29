@@ -33,7 +33,7 @@ def iterate(districts, trace=False, iterations=200):
 
     # iter_districts_sorted = sort_iter_districts(iter_districts)
 
-    best_sum = sum_norm_bpi(iter_districts)
+    best_sum = franklin_deviation(iter_to_normal_districts(iter_districts))
 
     original_sum = best_sum
     best_config = copy_iter_districts(iter_districts)
@@ -53,7 +53,7 @@ def iterate(districts, trace=False, iterations=200):
         # for d in iter_districts:
         #     print(round(d.district.norm_bpi, 5), end=' ')
         # print()
-        old_sum = sum_norm_bpi(iter_districts)
+        old_sum = franklin_deviation(iter_to_normal_districts(iter_districts))
         min_index = -1
         max_index = -1
 
@@ -89,7 +89,8 @@ def iterate(districts, trace=False, iterations=200):
                 copy_iter_districts(iter_districts), min_index, max_index, trace=trace)
 
             if valid_iter_district:
-                new_sum = sum_norm_bpi(new_iter_districts)
+                new_sum = franklin_deviation(
+                    iter_to_normal_districts(new_iter_districts))
                 cur_sums[new_sum] = copy_iter_districts(new_iter_districts)
             if trace:
                 display_copy = copy_iter_districts(new_iter_districts)
