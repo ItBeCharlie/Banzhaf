@@ -50,7 +50,8 @@ class District:
         for key in keys:
             val = self.get_val(key)
             if key in ['Pop. Proportion', 'BPI Score', 'Normalized BPI Score']:
-                val = format_percentage(val)
+                # val = format_percentage(val)
+                val = f'{val:.2%}'
             if key in ['# Votes / Member']:
                 val = round(val)
             print_data[key] = str(val)

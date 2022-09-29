@@ -1,4 +1,5 @@
 from helper import *
+from DistrictSet import DistrictSet
 import time
 
 
@@ -33,6 +34,7 @@ def iterate(districts, trace=False, iterations=200):
     # iter_districts_sorted = sort_iter_districts(iter_districts)
 
     best_sum = sum_norm_bpi(iter_districts)
+
     original_sum = best_sum
     best_config = copy_iter_districts(iter_districts)
 

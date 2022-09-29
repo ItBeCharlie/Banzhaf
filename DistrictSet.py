@@ -63,6 +63,44 @@ class DistrictSet:
         for index, district in enumerate(self.districts):
             district.votes_per_member = int(
                 districts[index].votes_per_member * vote_scale)
+        print(self.sum_of_votes())
+        self.fix_votes()
+        print(self.sum_of_votes())
+
+    def sum_of_votes(self):
+        count = 0
+        for district in self.districts:
+            count += district.votes_per_member
+        return count
+
+    def min_votes_district(self):
+        min_district = self.districts[0]
+        for district in self.districts:
+            if district.norm_bpi < min_district.norm_bpi:
+                min_district = district
+        return min_district
+
+    def max_votes_district(self):
+        max_district = self.districts[0]
+        for district in self.districts:
+            if district.norm_bpi > max_district.norm_bpi:
+                max_district = district
+        return max_district
+
+    def fix_votes(self):
+        count = self.sum_of_votes()
+        while count < self.votes:
+            self.min_votes_district().votes_per_member += 1
+            count += 1
+            self.districts = generate_bpi_data(self.get_district_list())
+            for district in self.districts:
+                district.norm_bpi = district.bpi - district.population_proportion
+        while count > self.votes:
+            self.max_votes_district().votes_per_member -= 1
+            count -= 1
+            self.districts = generate_bpi_data(self.get_district_list())
+            for district in self.districts:
+                district.norm_bpi = district.bpi - district.population_proportion
 
     def display_table(self, keys):
         # table_data = generate_table_data(districts, votes, len(key), bpi)
