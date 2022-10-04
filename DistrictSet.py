@@ -57,19 +57,20 @@ class DistrictSet:
         for district in self.districts:
             new_districts.append(district.clone())
         new_set = DistrictSet(new_districts, self.votes)
-        new_set.override_votes(new_districts)
+        # new_set.override_votes(new_districts)
         new_set.vote_scale = self.vote_scale
+        new_set.update_data()
         return new_set
 
     def get_district_list(self):
         return self.districts
 
     def generate_data(self, update_votes=False, update_pop_prop=False):
-        total_population = 0
-        for district in self.districts:
-            total_population += district.population
 
         if update_pop_prop:
+            total_population = 0
+            for district in self.districts:
+                total_population += district.population
             for district in self.districts:
                 district.set_val('Pop. Proportion',
                                  district.population/total_population)

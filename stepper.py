@@ -1,3 +1,4 @@
+from xmlrpc.client import Boolean
 from helper import *
 from DistrictSet import DistrictSet
 import time
@@ -105,6 +106,9 @@ def iterate(districts: DistrictSet, trace=False, iterations=200, score_metric='N
         iter_districts.sort_districts(key='District')
 
         if min_score < best_score:
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            iter_districts.display_table(['District', 'Population', 'Pop. Proportion',
+                                          '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
             best_config = iter_districts.clone()
             # best_config.display_table([
             # 'District', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
