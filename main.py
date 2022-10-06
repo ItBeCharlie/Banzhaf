@@ -10,7 +10,7 @@ def main():
     initialize_log_file()
     # districts = input_data()
     # votes = get_total_number_of_votes()
-    districts, votes = init(1)
+    districts, votes = init(3)
     districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
