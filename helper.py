@@ -160,3 +160,16 @@ def update_log(key, value, form='replace', type='str'):
         for d in data:
             f.write(f'{d},{data[d]}\n')
         f.close()
+
+
+def get_log(key):
+    with open('log.csv') as f:
+        lines = f.readlines()
+        f.close()
+
+    for line in lines:
+        line = line.removesuffix('\n')
+        if line == '':
+            continue
+        if line.split(',')[0] == key:
+            return line.split(',')[1]

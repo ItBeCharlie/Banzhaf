@@ -28,7 +28,7 @@ def main():
 
     district_sets = []
 
-    while votes < 5000:
+    while votes < 2000:
         votes += 100
         districts = DistrictSet(best_set.districts, votes, initial=True)
 
@@ -53,6 +53,9 @@ def main():
     for district_set in district_sets:
         district_set.display_table(['District', 'Population', 'Pop. Proportion',
                                     '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+    print(f'Total Calculation Time: {get_log("time")}s')
+    print(f'Total Iterations: {get_log("iterations")}')
 
 
 def input_data():
