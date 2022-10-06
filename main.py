@@ -126,10 +126,10 @@ def get_total_number_of_votes():
 
 
 def initialize_log_file():
+    open('log.csv', 'w').close()
     data = ['iterations', 'time']
-    with open('log.csv', 'w') as f:
-        for d in data:
-            f.write(f'{d},{0}\n')
+    for d in data:
+        update_log(d, 0)
 
 
 main()

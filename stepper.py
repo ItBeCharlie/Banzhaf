@@ -116,6 +116,9 @@ def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='N
     best_config.display_table(['District', 'Population', 'Pop. Proportion',
                                '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
+    update_log('iterations', iteration, 'add', 'int')
+    update_log('time', end_time-start_time, 'add', 'float')
+
     return best_config
 
 

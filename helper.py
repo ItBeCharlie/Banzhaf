@@ -130,3 +130,33 @@ def copy_iter_districts(iter_districts):
     for district in iter_districts:
         new_iter_districts.append(district.clone())
     return new_iter_districts
+
+
+def update_log(key, value, form='replace', type='str'):
+    with open('log.csv') as f:
+        lines = f.readlines()
+        f.close()
+    data = {}
+    for line in lines:
+        line = line.removesuffix('\n')
+        if line == '':
+            continue
+        if line.split(',')[0] == key:
+            if type == 'str':
+                data[key] = line.split(',')[1]
+            elif type == 'int':
+                data[key] = int(line.split(',')[1])
+            elif type == 'float':
+                data[key] = float(line.split(',')[1])
+        else:
+            data[line.split(',')[0]] = line.split(',')[1]
+
+    if form == 'replace':
+        data[key] = value
+    elif form == 'add':
+        data[key] = data[key] + value
+
+    with open('log.csv', 'w') as f:
+        for d in data:
+            f.write(f'{d},{data[d]}\n')
+        f.close()
