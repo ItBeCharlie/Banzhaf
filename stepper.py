@@ -1,9 +1,17 @@
+from math import dist
 from helper import *
 from DistrictSet import DistrictSet
 import time
 
 
 def iterate(district_set: DistrictSet, trace=False, iterations=50, score_metric='Normalized BPI Score'):
+
+    return step1(district_set, trace=trace,
+                 iterations=iterations, score_metric=score_metric)
+
+
+# Find the local minimum
+def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='Normalized BPI Score'):
     orig_district_set = district_set.clone()
     district_set = district_set.clone()
 
@@ -18,11 +26,15 @@ def iterate(district_set: DistrictSet, trace=False, iterations=50, score_metric=
 
     number_of_districts = len(district_set.districts)
 
+    votes_list_cache = []
+    votes_list_cache.append(extract_votes(district_set))
+
     print()
-    loading_bar(0, 20, iterations)
+    loading_bar(0, iterations)
     start_time = time.perf_counter()
-    for iteration in range(iterations):
-        loading_bar(iteration, 20, iterations)
+    iteration = 0
+    while iteration < iterations:
+        loading_bar(iteration, iterations)
 
         district_set.sort_districts(key='Normalized BPI Score')
 
@@ -79,13 +91,22 @@ def iterate(district_set: DistrictSet, trace=False, iterations=50, score_metric=
             # 'District', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
             best_score = min_score
 
+        extracted_votes = extract_votes(district_set)
+        if extracted_votes in votes_list_cache:
+            break
+        else:
+            votes_list_cache.append(extracted_votes)
+
         if trace:
             district_set.display_table(['District', 'Population', 'Pop. Proportion',
                                         '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+        iteration += 1
+
     end_time = time.perf_counter()
 
-    loading_bar(iterations, 20, iterations)
-    print(f'Total time: {end_time-start_time}s')
+    loading_bar(iteration, iterations)
+    print(f'\nTotal time: {end_time-start_time}s')
 
     print(f'Original Score: {format_percentage(original_score, 10)}\nBest Score:     {format_percentage(best_score, 10)}\n\nOriginal Frankin: {format_percentage((original_franklin), 10)}\nNew Franklin:     {format_percentage((best_config.franklin), 10)}\n')
 
@@ -96,6 +117,15 @@ def iterate(district_set: DistrictSet, trace=False, iterations=50, score_metric=
                                '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     return best_config
+
+
+def extract_votes(district_set):
+    district_set = district_set.clone()
+    district_set.sort_districts(key='District')
+    votes_list = []
+    for district in district_set.districts:
+        votes_list.append(district.votes_per_member)
+    return votes_list
 
 
 def step(district_set: DistrictSet, min_index, max_index, trace=False):
@@ -129,8 +159,5 @@ def brute_force_approach(number_of_districts, min_index, max_index):
     return min_index, max_index
 
 
-def loading_bar(cur_iteration, display_segments, max_iterations):
-    display_step = max_iterations // display_segments
-    if cur_iteration % display_step == 0:
-        num = cur_iteration//display_step
-        print(f'\r[{"@"*num}{"-"*((max_iterations//display_step)-num)}]', end='')
+def loading_bar(cur_iteration, max_iterations):
+    print(f'\rIterations: {cur_iteration} / {max_iterations}', end='')

@@ -80,11 +80,16 @@ class DistrictSet:
         self.update_data()
 
     def override_votes(self, district_set):
+        print(self.votes, district_set.votes)
         vote_scale = self.votes / district_set.votes
+        print(vote_scale)
 
-        for district in self.districts:
+        self.sort_districts('District')
+        district_set.sort_districts('District')
+
+        for index, district in enumerate(self.districts):
             district.votes_per_member = int(
-                district.votes_per_member * vote_scale)
+                district_set.districts[index].votes_per_member * vote_scale)
         self.fix_votes()
         self.generate_data()
 
@@ -109,10 +114,12 @@ class DistrictSet:
         return max_district
 
     def fix_votes(self):
+        count = self.sum_of_votes()
+        print("votes", count)
         for district in self.districts:
             if district.votes_per_member == 0:
                 district.votes_per_member = 1
-        count = self.sum_of_votes()
+
         while count < self.votes:
             self.min_votes_district().votes_per_member += 1
             count += 1
@@ -125,6 +132,7 @@ class DistrictSet:
             generate_bpi_data(self)
             for district in self.districts:
                 district.norm_bpi = district.bpi - district.population_proportion
+        print("votes done", count)
 
     def display_table(self, keys):
         print_data = []

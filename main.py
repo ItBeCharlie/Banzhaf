@@ -7,6 +7,7 @@ from DistrictSet import DistrictSet
 
 
 def main():
+    initialize_log_file()
     # districts = input_data()
     # votes = get_total_number_of_votes()
     districts, votes = init(1)
@@ -27,13 +28,13 @@ def main():
 
     district_sets = []
 
-    while votes < 1000:
+    while votes < 5000:
         votes += 100
         districts = DistrictSet(best_set.districts, votes, initial=True)
 
         districts.override_votes(best_set)
 
-        districts = iterate(districts, iterations=(15*(votes // 100) + 5),
+        districts = iterate(districts, iterations=50,
                             score_metric='Normalized BPI Score', trace=False)
 
         cur_franklin = districts.franklin
@@ -122,6 +123,13 @@ def get_total_number_of_votes():
         votes = input("Please enter total number of votes: ")
         is_valid_votes = is_int(votes)
     return int(votes)
+
+
+def initialize_log_file():
+    data = ['iterations', 'time']
+    with open('log.csv', 'w') as f:
+        for d in data:
+            f.write(f'{d},{0}\n')
 
 
 main()
