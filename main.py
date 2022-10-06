@@ -10,7 +10,7 @@ def main():
     # districts = input_data()
     # votes = get_total_number_of_votes()
     districts, votes = init(1)
-    districts = DistrictSet(districts, votes)
+    districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
 
@@ -27,15 +27,14 @@ def main():
 
     district_sets = []
 
-    while votes < 5000:
+    while votes < 1000:
         votes += 100
-        districts = DistrictSet(best_set.get_district_list(
-        ), votes, vote_scale=votes / best_set.votes)
+        districts = DistrictSet(best_set.districts, votes, initial=True)
 
-        districts.override_votes(best_set.districts)
+        districts.override_votes(best_set)
 
-        districts = iterate(districts, iterations=20,
-                            score_metric='Normalized BPI Score')
+        districts = iterate(districts, iterations=(15*(votes // 100) + 5),
+                            score_metric='Normalized BPI Score', trace=False)
 
         cur_franklin = districts.franklin
         if cur_franklin < best_franklin:
@@ -45,8 +44,8 @@ def main():
 
         district_sets.append(districts.clone())
 
-        if abs(cur_franklin - prev_franklin) < threshold:
-            break
+        # if abs(cur_franklin - prev_franklin) < threshold:
+        #     break
 
         prev_franklin = cur_franklin
 

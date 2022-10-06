@@ -25,7 +25,7 @@ def format_percentage(value, decimals=2):
     return value + '%'
 
 
-def generate_bpi_data(districts):
+def generate_bpi_data_old(districts):
     sum = 0
     bpi_data = [None] * len(districts)
 
@@ -40,6 +40,20 @@ def generate_bpi_data(districts):
         district.bpi = bpi[index]
 
     return districts
+
+
+def generate_bpi_data(district_set):
+    districts = district_set.districts
+    bpi_data = [None] * len(districts)
+
+    for district in districts:
+        bpi_data[district.number - 1] = district.votes_per_member
+        # print(district.number, sum)
+
+    bpi_data.insert(0, district_set.votes//2)
+    bpi = calc_bpi_single(bpi_data)
+    for index, district in enumerate(districts):
+        district.bpi = bpi[index]
 
 
 def display_table(districts, keys):

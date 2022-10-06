@@ -4,16 +4,14 @@ from helper import generate_bpi_data, generate_data
 
 
 class DistrictSet:
-    def __init__(self, districts, votes, vote_scale=1):
+    def __init__(self, districts, votes, initial=False):
         self.districts = deepcopy(districts)
         self.votes = votes
-        self.vote_scale = vote_scale
         self.min_deviation = 999999
         self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
-        self.generate_data(update_votes=True, update_pop_prop=True)
-        self.update_districts(self.districts)
+        self.generate_data(update_votes=initial, update_pop_prop=initial)
 
     def update_districts(self, districts):
         self.districts = deepcopy(districts)
@@ -58,12 +56,8 @@ class DistrictSet:
             new_districts.append(district.clone())
         new_set = DistrictSet(new_districts, self.votes)
         # new_set.override_votes(new_districts)
-        new_set.vote_scale = self.vote_scale
         new_set.update_data()
         return new_set
-
-    def get_district_list(self):
-        return self.districts
 
     def generate_data(self, update_votes=False, update_pop_prop=False):
 
@@ -79,19 +73,20 @@ class DistrictSet:
                 district.set_val(
                     '# Votes / Member', district.population_proportion*self.votes)
 
-        self.districts = generate_bpi_data(self.get_district_list())
+        generate_bpi_data(self)
         for district in self.districts:
             district.norm_bpi = district.bpi - district.population_proportion
 
         self.update_data()
 
-    def override_votes(self, districts):
-        for index, district in enumerate(self.districts):
+    def override_votes(self, district_set):
+        vote_scale = self.votes / district_set.votes
+
+        for district in self.districts:
             district.votes_per_member = int(
-                districts[index].votes_per_member * self.vote_scale)
-        # print(self.sum_of_votes())
+                district.votes_per_member * vote_scale)
         self.fix_votes()
-        # print(self.sum_of_votes())
+        self.generate_data()
 
     def sum_of_votes(self):
         count = 0
@@ -114,23 +109,24 @@ class DistrictSet:
         return max_district
 
     def fix_votes(self):
+        for district in self.districts:
+            if district.votes_per_member == 0:
+                district.votes_per_member = 1
         count = self.sum_of_votes()
         while count < self.votes:
             self.min_votes_district().votes_per_member += 1
             count += 1
-            self.districts = generate_bpi_data(self.get_district_list())
+            generate_bpi_data(self)
             for district in self.districts:
                 district.norm_bpi = district.bpi - district.population_proportion
         while count > self.votes:
             self.max_votes_district().votes_per_member -= 1
             count -= 1
-            self.districts = generate_bpi_data(self.get_district_list())
+            generate_bpi_data(self)
             for district in self.districts:
                 district.norm_bpi = district.bpi - district.population_proportion
 
     def display_table(self, keys):
-        # table_data = generate_table_data(districts, votes, len(key), bpi)
-        table_data = []
         print_data = []
         max_lengths = dict.fromkeys(keys)
 
