@@ -11,8 +11,18 @@ table = [[1, 0, 0, 0, 0, 0],
 key = 'p\\y'
 
 
-def pretty_table(x_names, y_names, table, key):
+def pretty_table(x_names=None, y_names=None, table=[[None]], key="\\"):
     str_table = []
+    if x_names == None:
+        x_names = []
+        for i in range(len(table[0])):
+            x_names.append(i)
+
+    if y_names == None:
+        y_names = []
+        for i in range(len(table)):
+            y_names.append(i)
+
     x_names, max_x = to_str_list(x_names)
     y_names, max_y = to_str_list(y_names)
     max_len = max(max_x, max_y, len(key))
@@ -49,4 +59,4 @@ def to_str_list(list):
     return new_list, max_len
 
 
-pretty_table(x_names, y_names, table, key)
+# pretty_table(x_names, y_names, table, key)
