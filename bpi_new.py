@@ -11,7 +11,7 @@ def calc_bpi(data):
     q = data[0]
     S = data[1:]
 
-    print(q, S)
+    # print(q, S)
 
     scores = []
 
@@ -20,9 +20,20 @@ def calc_bpi(data):
         w_sum = 0
         for y in range(q-p, q):
             w_sum += f[-2][y]
-        print(w_sum)
+        # print(w_sum)
         scores.append(w_sum)
-    print(scores)
+    # print(scores)
+    return normalize_score(scores)
+
+
+def normalize_score(scores):
+    score_sum = sum(scores)
+    if score_sum == 0:
+        return scores
+    normalized_scores = []
+    for score in scores:
+        normalized_scores.append(score / score_sum)
+    return normalized_scores
 
 
 def build_f(q, S, p_i):
@@ -44,10 +55,10 @@ def build_f(q, S, p_i):
             else:
                 table[index][y] = table[index-1][y]
 
-    pt(table=table, y_names=player_labels, key=player_labels[-1])
+    # pt(table=table, y_names=player_labels, key=player_labels[-1])
     return table
 
 
-calc_bpi(test)
+# calc_bpi(test)
 
 # print(list(itertools.permutations([1, 2, 3])))

@@ -2,6 +2,7 @@ from math import dist
 from helper import *
 from DistrictSet import DistrictSet
 import time
+import random
 
 
 def iterate(district_set: DistrictSet, trace=False, iterations=50, score_metric='Normalized BPI Score'):
@@ -70,10 +71,18 @@ def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='N
                 number_of_districts, min_index, max_index)
 
         min_score = 9999999
-        for key in cur_scores:
-            min_score = min(min_score, key)
-            if trace:
-                print(f'Keys: {cur_scores.keys()}\nMin Sum: {min_score}\n')
+        cur_scores_keys = (list(cur_scores.keys()))
+        cur_scores_keys.sort()
+        # for key in cur_scores:
+        #     min_score = min(min_score, key)
+        #     if trace:
+        #         print(f'Keys: {cur_scores.keys()}\nMin Sum: {min_score}\n')
+
+        min_score = cur_scores_keys[0]
+        if random.random() < 0.2:
+            # print(list(cur_scores.keys()))
+            min_score = cur_scores_keys[1]
+            # print('RAND')
 
         district_set = cur_scores[min_score].clone()
 

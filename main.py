@@ -1,4 +1,4 @@
-from bpi import calc_bpi_single
+from bpi_old import calc_bpi_single
 from helper import *
 from District import District
 from stepper import iterate
@@ -10,7 +10,7 @@ def main():
     initialize_log_file()
     # districts = input_data()
     # votes = get_total_number_of_votes()
-    districts, votes = init(3)
+    districts, votes = init(1)
     districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
@@ -28,31 +28,42 @@ def main():
 
     district_sets = []
 
-    while votes < 2000:
-        votes += 100
-        districts = DistrictSet(best_set.districts, votes, initial=True)
+    try:
+        while votes < 2000:
+            votes += 100
+            districts = DistrictSet(best_set.districts, votes, initial=True)
 
-        districts.override_votes(best_set)
+            districts.override_votes(best_set)
 
-        districts = iterate(districts, iterations=50,
-                            score_metric='Normalized BPI Score', trace=False)
+            districts = iterate(districts, iterations=50,
+                                score_metric='Normalized BPI Score', trace=False)
 
-        cur_franklin = districts.franklin
-        if cur_franklin < best_franklin:
-            best_franklin = cur_franklin
-            best_set = districts.clone()
-        print(f'Votes: {votes}')
+            cur_franklin = districts.franklin
+            if cur_franklin < best_franklin:
+                best_franklin = cur_franklin
+                best_set = districts.clone()
+            print(f'Votes: {votes}')
 
-        district_sets.append(districts.clone())
+            district_sets.append(districts.clone())
 
-        # if abs(cur_franklin - prev_franklin) < threshold:
-        #     break
+            # if abs(cur_franklin - prev_franklin) < threshold:
+            #     break
 
-        prev_franklin = cur_franklin
+            prev_franklin = cur_franklin
+    except Exception as e:
+        print(f'\n{e}')
+        print('Error or run terminated')
 
     for district_set in district_sets:
+        print(
+            f'Franklin: {district_set.franklin:.10%}\nBPI Sum: {district_set.norm_sum:.10%}')
         district_set.display_table(['District', 'Population', 'Pop. Proportion',
                                     '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
+    print(
+        f'Franklin: {best_set.franklin:.10%}\nBPI Sum: {best_set.norm_sum:.10%}')
+    best_set.display_table(['District', 'Population', 'Pop. Proportion',
+                            '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     print(f'Total Calculation Time: {get_log("time")}s')
     print(f'Total Iterations: {get_log("iterations")}')

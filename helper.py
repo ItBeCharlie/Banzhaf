@@ -1,4 +1,5 @@
-from bpi import calc_bpi_single
+# from bpi_old import calc_bpi_single
+from bpi import calc_bpi
 
 # Checks if an input is an integer
 
@@ -35,7 +36,7 @@ def generate_bpi_data_old(districts):
         # print(district.number, sum)
 
     bpi_data.insert(0, sum//2)
-    bpi = calc_bpi_single(bpi_data)
+    bpi = calc_bpi(bpi_data)
     for index, district in enumerate(districts):
         district.bpi = bpi[index]
 
@@ -47,11 +48,12 @@ def generate_bpi_data(district_set):
     bpi_data = [None] * len(districts)
 
     for district in districts:
-        bpi_data[district.number - 1] = district.votes_per_member
+        bpi_data[district.number - 1] = int(district.votes_per_member)
         # print(district.number, sum)
 
     bpi_data.insert(0, district_set.votes//2)
-    bpi = calc_bpi_single(bpi_data)
+    # print(bpi_data)
+    bpi = calc_bpi(bpi_data)
     for index, district in enumerate(districts):
         district.bpi = bpi[index]
 
