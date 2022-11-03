@@ -115,7 +115,7 @@ class DistrictSet:
 
     def fix_votes(self):
         count = self.sum_of_votes()
-        print("votes", count)
+        # print("votes", count)
         for district in self.districts:
             if district.votes_per_member == 0:
                 district.votes_per_member = 1
@@ -132,7 +132,7 @@ class DistrictSet:
             generate_bpi_data(self)
             for district in self.districts:
                 district.norm_bpi = district.bpi - district.population_proportion
-        print("votes done", count)
+        # print("votes done", count)
 
     def display_table(self, keys):
         print_data = []

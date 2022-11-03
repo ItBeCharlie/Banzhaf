@@ -10,7 +10,7 @@ def main():
     initialize_log_file()
     # districts = input_data()
     # votes = get_total_number_of_votes()
-    districts, votes = init(1)
+    districts, votes = init(4)
     districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
@@ -27,9 +27,10 @@ def main():
     best_set = districts.clone()
 
     district_sets = []
-
+    print(f"\n{'='*97}\n\n")
     try:
-        while votes < 2000:
+        while votes < 3000:
+
             votes += 100
             districts = DistrictSet(best_set.districts, votes, initial=True)
 
@@ -50,6 +51,7 @@ def main():
             #     break
 
             prev_franklin = cur_franklin
+            print(f"\n{'='*97}\n\n")
     except Exception as e:
         print(f'\n{e}')
         print('Error or run terminated')
@@ -59,9 +61,10 @@ def main():
             f'Franklin: {district_set.franklin:.10%}\nBPI Sum: {district_set.norm_sum:.10%}')
         district_set.display_table(['District', 'Population', 'Pop. Proportion',
                                     '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+        print(f"\n{'='*97}\n\n")
 
     print(
-        f'Franklin: {best_set.franklin:.10%}\nBPI Sum: {best_set.norm_sum:.10%}')
+        f'BPI Sum: {best_set.norm_sum:.10%}\nFranklin: {best_set.franklin:.10%}\nTotal Votes: {best_set.votes}')
     best_set.display_table(['District', 'Population', 'Pop. Proportion',
                             '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 

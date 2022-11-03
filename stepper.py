@@ -17,8 +17,8 @@ def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='N
     district_set = district_set.clone()
 
     print('\n\n\n\n')
-    district_set.display_table(['District', 'Population', 'Pop. Proportion',
-                                '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+    # district_set.display_table(['District', 'Population', 'Pop. Proportion',
+    # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     best_score = district_set.get_val(key=score_metric)
     original_score = best_score
@@ -128,6 +128,8 @@ def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='N
     update_log('iterations', iteration, 'add', 'int')
     update_log('time', end_time-start_time, 'add', 'float')
 
+    if best_config.franklin > original_franklin:
+        return orig_district_set
     return best_config
 
 
