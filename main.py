@@ -14,7 +14,6 @@ def main():
     districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
-
     districts.display_table(['District', 'Population', 'Pop. Proportion',
                              '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
@@ -29,7 +28,7 @@ def main():
     district_sets = []
     print(f"\n{'='*97}\n\n")
     try:
-        while votes < 3000:
+        while votes < 1000:
 
             votes += 100
             districts = DistrictSet(best_set.districts, votes, initial=True)
