@@ -16,7 +16,6 @@ def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='N
     orig_district_set = district_set.clone()
     district_set = district_set.clone()
 
-    print('\n\n\n\n')
     # district_set.display_table(['District', 'Population', 'Pop. Proportion',
     # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
@@ -121,9 +120,6 @@ def step1(district_set: DistrictSet, trace=False, iterations=50, score_metric='N
 
     # display_table(districts, ['District', 'Population', 'Pop. Proportion',
     # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
-
-    best_config.display_table(['District', 'Population', 'Pop. Proportion',
-                               '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
     update_log('iterations', iteration, 'add', 'int')
     update_log('time', end_time-start_time, 'add', 'float')

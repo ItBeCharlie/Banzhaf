@@ -59,8 +59,9 @@ class DistrictSet:
         new_set.update_data()
         return new_set
 
-    def generate_data(self, update_votes=False, update_pop_prop=False):
-
+    def generate_data(self, update_votes=False, update_pop_prop=False, quota=None):
+        if quota == None:
+            quota = self.votes//2+1
         if update_pop_prop:
             total_population = 0
             for district in self.districts:
@@ -73,7 +74,7 @@ class DistrictSet:
                 district.set_val(
                     '# Votes / Member', district.population_proportion*self.votes)
 
-        generate_bpi_data(self)
+        generate_bpi_data(self, quota)
         for district in self.districts:
             district.norm_bpi = district.bpi - district.population_proportion
 
@@ -123,13 +124,13 @@ class DistrictSet:
         while count < self.votes:
             self.min_votes_district().votes_per_member += 1
             count += 1
-            generate_bpi_data(self)
+            generate_bpi_data(self, self.votes//2+1)
             for district in self.districts:
                 district.norm_bpi = district.bpi - district.population_proportion
         while count > self.votes:
             self.max_votes_district().votes_per_member -= 1
             count -= 1
-            generate_bpi_data(self)
+            generate_bpi_data(self, self.votes//2+1)
             for district in self.districts:
                 district.norm_bpi = district.bpi - district.population_proportion
         # print("votes done", count)
@@ -139,7 +140,12 @@ class DistrictSet:
         max_lengths = dict.fromkeys(keys)
 
         for key in keys:
-            max_lengths[key] = len(key)
+            if key == 'BPI Score':
+                max_lengths[key] = len('Normalized BPI')
+            elif key == 'Normalized BPI Score':
+                max_lengths[key] = len('BPI Diff')
+            else:
+                max_lengths[key] = len(key)
 
         for district in self.districts:
             cur_data = district.print_data(keys)
@@ -157,7 +163,12 @@ class DistrictSet:
         print(separator_string)
 
         for key in keys:
-            print(f'| {key:<{max_lengths[key]}} ', end='')
+            if key == 'BPI Score':
+                print(f'| {"Normalized BPI":<{max_lengths[key]}} ', end='')
+            elif key == 'Normalized BPI Score':
+                print(f'| {"BPI Diff":<{max_lengths[key]}} ', end='')
+            else:
+                print(f'| {key:<{max_lengths[key]}} ', end='')
         print('|')
 
         print(separator_string)

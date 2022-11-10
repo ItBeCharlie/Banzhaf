@@ -4,6 +4,7 @@ from District import District
 from stepper import iterate
 from testing_init import init
 from DistrictSet import DistrictSet
+import copy
 
 
 def main():
@@ -26,10 +27,14 @@ def main():
     best_franklin = 99999
     best_set = districts.clone()
 
+    print(
+        f'Franklin: {districts.franklin:.10%}\nBPI Sum:  {districts.norm_sum:.10%}')
+
     district_sets = []
+    two_thirds_district_sets = []
     print(f"\n{'='*97}\n\n")
     try:
-        while votes < 3000:
+        while votes < 1000:
 
             votes += 100
             districts = DistrictSet(best_set.districts, votes, initial=True)
@@ -39,37 +44,82 @@ def main():
             districts = iterate(districts, iterations=50,
                                 score_metric='Normalized BPI Score', trace=False)
 
+            two_thirds_districts = districts.clone()
+            two_thirds_districts.generate_data(
+                quota=(two_thirds_districts.votes*2)//3)
+            two_thirds_districts.franklin_score()
+
+            print(
+                f'2/3 Majority Franklin: {two_thirds_districts.franklin:.10%}')
+
+            districts.display_table(['District', 'Population', 'Pop. Proportion',
+                                     '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+
             cur_franklin = districts.franklin
             if cur_franklin < best_franklin:
                 best_franklin = cur_franklin
                 best_set = districts.clone()
+                best_two_thirds = copy.deepcopy(two_thirds_districts)
             print(f'Votes: {votes}')
 
+            print(districts.franklin)
+            print(two_thirds_districts.franklin)
+
             district_sets.append(districts.clone())
+            two_thirds_district_sets.append(
+                copy.deepcopy(two_thirds_districts))
 
-            # if abs(cur_franklin - prev_franklin) < threshold:
-            #     break
+            print(district_sets[-1].franklin)
+            print(two_thirds_district_sets[-1].franklin)
 
-            prev_franklin = cur_franklin
+            generate_csv(districts, two_thirds_districts, f'csvs/{votes}.csv')
+
             print(f"\n{'='*97}\n\n")
     except Exception as e:
         print(f'\n{e}')
         print('Error or run terminated')
 
-    for district_set in district_sets:
+    for index, district_set in enumerate(district_sets):
         print(
-            f'Franklin: {district_set.franklin:.10%}\nBPI Sum: {district_set.norm_sum:.10%}')
+            f'BPI Sum:  {district_set.norm_sum:.10%}\nFranklin: {district_set.franklin:.10%}\n2/3 Majority Franklin: {two_thirds_district_sets[index].franklin:.10%}\nTotal Votes: {best_set.votes}')
         district_set.display_table(['District', 'Population', 'Pop. Proportion',
                                     '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
         print(f"\n{'='*97}\n\n")
 
     print(
-        f'BPI Sum: {best_set.norm_sum:.10%}\nFranklin: {best_set.franklin:.10%}\nTotal Votes: {best_set.votes}')
+        f'BPI Sum: {best_set.norm_sum:.10%}\nFranklin: {best_set.franklin:.10%}\n2/3 Majority Franklin: {best_two_thirds.franklin:.10%}\nTotal Votes: {best_set.votes}')
     best_set.display_table(['District', 'Population', 'Pop. Proportion',
                             '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
+    generate_csv(best_set, best_two_thirds, 'csvs/best.csv')
+
     print(f'Total Calculation Time: {get_log("time")}s')
     print(f'Total Iterations: {get_log("iterations")}')
+
+
+def generate_csv(district_set, two_thirds_district_set, outfile):
+    keys = ['District',
+            'Population',
+            'Pop. Proportion',
+            '# Votes / Member',
+            'BPI Score',
+            'Normalized BPI Score']
+    open(outfile, 'w').close()
+    with open(outfile, 'w') as f:
+        f.write(f'BPI Sum,{district_set.norm_sum:.4%}\n')
+        f.write(f'50% Franklin,{district_set.franklin:.4%}\n')
+        f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:.4%}\n')
+        f.write(f'Total Votes,{district_set.votes}\n')
+        f.write(
+            'District,Population,Pop. Proportion,# Votes / Member,Normalized BPI,BPI Diff\n')
+        for district in district_set.districts:
+            data = district.print_data(keys)
+            # print(data)
+            out_str = ''
+            for item in data:
+                out_str += f'{data[item]},'
+            f.write(f'{out_str[:-1]}\n')
+        f.close()
 
 
 def input_data():
