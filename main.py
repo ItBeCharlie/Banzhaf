@@ -15,7 +15,6 @@ def main():
     districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
-
     districts.display_table(['District', 'Population', 'Pop. Proportion',
                              '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 

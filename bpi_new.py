@@ -1,4 +1,5 @@
 from pretty_print import pretty_table as pt
+from multiprocessing import Pool
 import itertools
 
 
@@ -8,6 +9,10 @@ usec = [61, 55, 38, 29]
 
 
 def calc_bpi(data):
+    return calc_bpi_single_thread(data)
+
+
+def calc_bpi_single_thread(data):
     q = data[0]
     S = data[1:]
 
@@ -24,6 +29,58 @@ def calc_bpi(data):
         scores.append(w_sum)
     # print(scores)
     return normalize_score(scores)
+
+
+def calc_bpi_multi_thread(data):
+    q = data[0]
+    S = data[1:]
+
+    # print(q, S)
+
+    info = []
+
+    for index, p in enumerate(S, start=1):
+        info.append([q, S.copy(), index, p])
+
+    # for item in info:
+    #     print(item)
+
+    scores = []
+    results = []
+    pool = Pool()
+    results = list(pool.imap(thread_p, info))
+    print('ERR1')
+
+    print(results)
+    print('ERR2')
+    c = 0
+
+    for result in results:
+        print(f'ERR3 {c}')
+        c += 1
+        scores.append(result.get())
+        print('ERR4')
+    print('ERR5')
+
+    print(scores)
+
+    return normalize_score(scores)
+
+
+def thread_p(inp: list):
+    print('hello')
+    q = inp[0]
+    S = inp[1]
+    index = inp[2]
+    p = inp[3]
+
+    print(q)
+    f = build_f(q, S.copy(), index)
+    w_sum = 0
+    for y in range(q-p, q):
+        w_sum += f[-2][y]
+    print(w_sum)
+    return w_sum
 
 
 def normalize_score(scores):
