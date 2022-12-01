@@ -78,9 +78,9 @@ class District:
             val = self.get_val(key)
             if key in ['Pop. Proportion', 'BPI Score']:
                 # val = format_percentage(val)
-                val = f'{val: .2%}'
+                val = f'{val:#.9g}'
             if key in ['Normalized BPI Score']:
-                val = f'{val: .4%}'
+                val = f'{val:#.9g}'
             if key in ['# Votes / Member']:
                 val = round(val)
             print_data[key] = str(val)

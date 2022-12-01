@@ -33,7 +33,7 @@ def main():
     two_thirds_district_sets = []
     print(f"\n{'='*97}\n\n")
     try:
-        while votes < 1000:
+        while votes < 500:
 
             votes += 100
             districts = DistrictSet(best_set.districts, votes, initial=True)
@@ -53,6 +53,8 @@ def main():
 
             districts.display_table(['District', 'Population', 'Pop. Proportion',
                                      '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+            # two_thirds_districts.display_table(
+            # ['District', 'BPI Score', 'Normalized BPI Score'])
 
             cur_franklin = districts.franklin
             if cur_franklin < best_franklin:
@@ -105,16 +107,21 @@ def generate_csv(district_set, two_thirds_district_set, outfile):
             'Normalized BPI Score']
     open(outfile, 'w').close()
     with open(outfile, 'w') as f:
-        f.write(f'BPI Sum,{district_set.norm_sum:.4%}\n')
-        f.write(f'50% Franklin,{district_set.franklin:.4%}\n')
-        f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:.4%}\n')
+        f.write(f'50% BPI Sum,{district_set.norm_sum:0.7%}\n')
+        f.write(f'50% Franklin,{district_set.franklin:0.7%}\n')
+        f.write(f'2/3 BPI Sum,{two_thirds_district_set.norm_sum:0.7%}\n')
+        f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:0.7%}\n')
         f.write(f'Total Votes,{district_set.votes}\n')
         f.write(
-            'District,Population,Pop. Proportion,# Votes / Member,Normalized BPI,BPI Diff\n')
-        for district in district_set.districts:
+            'District,Population,Pop. Proportion,# Votes / Member,50% Normalized BPI,50% BPI Diff, 2/3 Normalized BPI, 2/3 BPI Diff\n')
+        for index, district in enumerate(district_set.districts):
             data = district.print_data(keys)
             # print(data)
             out_str = ''
+            for item in data:
+                out_str += f'{data[item]},'
+            data = two_thirds_district_set.districts[index].print_data(['BPI Score',
+                                                                        'Normalized BPI Score'])
             for item in data:
                 out_str += f'{data[item]},'
             f.write(f'{out_str[:-1]}\n')
