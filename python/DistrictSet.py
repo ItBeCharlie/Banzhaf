@@ -7,8 +7,6 @@ class DistrictSet:
     def __init__(self, districts, votes, initial=False):
         self.districts = deepcopy(districts)
         self.votes = votes
-        self.min_deviation = 999999
-        self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
         self.generate_data(update_votes=initial, update_pop_prop=initial)
@@ -18,11 +16,8 @@ class DistrictSet:
         self.update_data()
 
     def update_data(self):
-        self.min_deviation = 999999
-        self.max_deviation = 0
         self.franklin = 0
         self.norm_sum = 0
-        self.set_min_max()
         self.franklin_score()
         self.norm_sum_score()
 
@@ -38,13 +33,15 @@ class DistrictSet:
         elif key == 'Normalized BPI Score':
             return self.norm_sum
 
-    def set_min_max(self):
-        for district in self.districts:
-            self.min_deviation = min(self.min_deviation, district.norm_bpi)
-            self.max_deviation = max(self.max_deviation, district.norm_bpi)
-
     def franklin_score(self):
-        self.franklin = self.max_deviation - self.min_deviation
+        top = [0, 0]
+        for district in self.districts:
+            if abs(district.norm_bpi) > top[1]:
+                top[1] = abs(district.norm_bpi)
+            elif abs(district.norm_bpi) > top[0]:
+                top[0], top[1] = top[1], abs(district.norm_bpi)
+
+        self.franklin = top[1] + top[0]
 
     def norm_sum_score(self):
         for district in self.districts:

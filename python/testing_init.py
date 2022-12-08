@@ -51,20 +51,20 @@ def init(case):
     elif case == 4:
         for i in range(1, 17):
             districts.append(District(i))
-        districts[0].population = 4038
-        districts[1].population = 5886
-        districts[2].population = 1453
-        districts[3].population = 3468
-        districts[4].population = 1408
-        districts[5].population = 2460
-        districts[6].population = 1406
-        districts[7].population = 1285
-        districts[8].population = 2237
-        districts[9].population = 1914
-        districts[10].population = 2205
-        districts[11].population = 2838
-        districts[12].population = 2283
-        districts[13].population = 2088
-        districts[14].population = 2192
-        districts[15].population = 1810
+        districts[0].population = 4195
+        districts[1].population = 3708
+        districts[2].population = 3239
+        districts[3].population = 2715
+        districts[4].population = 1254
+        districts[5].population = 1112
+        districts[6].population = 2020
+        districts[7].population = 403
+        districts[8].population = 1976
+        districts[9].population = 1340
+        districts[10].population = 1285
+        districts[11].population = 4901
+        districts[12].population = 975
+        districts[13].population = 2368
+        districts[14].population = 5325
+        districts[15].population = 758
         return districts, 100
