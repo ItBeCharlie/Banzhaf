@@ -116,6 +116,6 @@ def build_f(q, S, p_i):
     return table
 
 
-# calc_bpi(test)
+calc_bpi(test)
 
 # print(list(itertools.permutations([1, 2, 3])))
