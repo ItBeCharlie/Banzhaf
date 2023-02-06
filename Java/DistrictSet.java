@@ -40,4 +40,16 @@ class DistrictSet {
         this.bpiDiffSum = sum;
     }
 
+    /**
+     * @return A clean copy of the District Set. Pointers are distinct from original
+     *         and copy, so changing data in the copy will not affect the original
+     */
+    public DistrictSet clone() {
+        District[] districtsCopy = new District[this.districts.length];
+        for (int i = 0; i < districtsCopy.length; i++)
+            districtsCopy[i] = this.districts[i].clone();
+        DistrictSet copy = new DistrictSet(districtsCopy, this.votes);
+
+        return copy;
+    }
 }
