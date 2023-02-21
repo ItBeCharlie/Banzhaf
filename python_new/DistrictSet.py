@@ -111,23 +111,34 @@ class DistrictSet:
         self.update_data()
 
     def override_votes(self, district_set):
-        print(self.votes, district_set.votes)
-        vote_scale = self.votes / district_set.votes
+        """
+        Adjusts the current votes to the votes of the district_set that is passed
+
+        Then by comparing the votes between the two sets, it will adjust the _votes_per_member of the districts in the current district_set
+
+        After the adjustment, self.fix_votes() is called to bring the number of votes back to the correct value
+        """
+        print(self.votes(), district_set.votes())
+        vote_scale = self.votes() / district_set.votes()
         print(vote_scale)
 
+        # TODO: THIS WILL NEED TO BE CHANGED
         self.sort_districts('District')
         district_set.sort_districts('District')
 
-        for index, district in enumerate(self.districts):
-            district.votes_per_member = int(
-                district_set.districts[index].votes_per_member * vote_scale)
+        for index, district in enumerate(self.districts()):
+            district.votes_per_member(
+                district_set.districts()[index].votes_per_member() * vote_scale)
         self.fix_votes()
         self.generate_data()
 
     def sum_of_votes(self):
+        """
+        Returns the sum of all the _votes_per_member for each district in self._districts
+        """
         count = 0
-        for district in self.districts:
-            count += district.votes_per_member
+        for district in self._districts:
+            count += district.votes_per_member()
         return count
 
     def min_votes_district(self):
