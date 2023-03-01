@@ -120,10 +120,6 @@ def build_f(q, S, p_i):
     return table
 
 
-# liz = calc_bpi(lizzie2)
-
-# for element in liz:
-#     print(f'{int(element*1000)/10}%')
-
+calc_bpi(test)
 
 # print(list(itertools.permutations([1, 2, 3])))
