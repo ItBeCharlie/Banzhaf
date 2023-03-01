@@ -3,6 +3,7 @@ nassau = [16, 9, 9, 7, 3, 1, 1]  # Example input from 2
 usec = [61, 55, 38, 29]
 my_ex = [50, 10, 20, 30, 40]
 
+
 # Single is in reference to a single required vote value to pass
 # in our case, this would be the 50% or 66% threshold.
 # In commented code at the bottom is for a bi-party system like

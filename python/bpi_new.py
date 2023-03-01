@@ -6,6 +6,10 @@ import itertools
 test = [6, 4, 3, 2, 1]
 nassau = [16, 9, 9, 7, 3, 1, 1]
 usec = [61, 55, 38, 29]
+lizzie = [2400, 130, 63, 208, 297, 512, 171, 241, 132,
+          322, 158, 168, 132, 153, 375, 250, 577, 277, 125, 558]
+lizzie2 = [4260//2 + 1, 275, 148, 48, 172, 273, 448,
+           474, 356, 69, 166, 137, 132, 780, 45, 199, 244, 294]
 
 
 def calc_bpi(data):
@@ -116,6 +120,10 @@ def build_f(q, S, p_i):
     return table
 
 
-# calc_bpi(test)
+# liz = calc_bpi(lizzie2)
+
+# for element in liz:
+#     print(f'{int(element*1000)/10}%')
+
 
 # print(list(itertools.permutations([1, 2, 3])))
