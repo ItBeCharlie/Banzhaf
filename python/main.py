@@ -7,11 +7,10 @@ from DistrictSet import DistrictSet
 import copy
 
 
-def main():
+def run_program(districts, votes):
     initialize_log_file()
     # districts = input_data()
     # votes = get_total_number_of_votes()
-    districts, votes = init(4)
     districts = DistrictSet(districts, votes, initial=True)
     # districts = [10, 20, 30]
     # votes = 50                                                                             '# Votes / Member', 'Normalized BPI Score']))
@@ -205,4 +204,11 @@ def initialize_log_file():
         update_log(d, 0)
 
 
-main()
+# main()
+def main():
+    districts, votes = init(5)
+    run_program(districts, votes)
+
+
+if __name__ == '__main__':
+    main()

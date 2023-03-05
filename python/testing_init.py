@@ -46,6 +46,10 @@ def init(case):
         districts[14].population = 2339
         districts[15].population = 1252
         districts[16].population = 3397
+        # sum = 0
+        # for i in range(len(districts)):
+        #     sum += districts[i].population
+        # print(districts[0].population/sum, sum)
         # return districts, 2009
         return districts, 100
     elif case == 4:
@@ -68,3 +72,27 @@ def init(case):
         districts[14].population = 5325
         districts[15].population = 758
         return districts, 100
+    elif case == 5:
+        for i in range(1, 18):
+            districts.append(District(i))
+        districts[0].population = 3782
+        districts[1].population = 2021
+        districts[2].population = 652
+        districts[3].population = 2336
+        districts[4].population = 3757
+        districts[5].population = 6259
+        districts[6].population = 6669
+        districts[7].population = 4942
+        districts[8].population = 938
+        districts[9].population = 2269
+        districts[10].population = 1853
+        districts[11].population = 1800
+        districts[12].population = 12671
+        districts[13].population = 609
+        districts[14].population = 2715
+        districts[15].population = 3356
+        districts[16].population = 4042
+        return districts, 100
+
+
+init(3)
