@@ -1,10 +1,11 @@
 from copy import deepcopy
+import datetime
 
 from helper import generate_bpi_data, generate_data
 
 
 class DistrictSet:
-    def __init__(self, districts, votes, initial=False):
+    def __init__(self, districts, votes, date, initial=False):
         """
         _districts: List of District Objects
 
@@ -12,6 +13,7 @@ class DistrictSet:
         """
         self._districts = self.update_districts(districts)
         self._votes = votes
+        self._date = date
         self.generate_data(update_votes=initial, update_pop_prop=initial)
 
     @property
@@ -137,44 +139,126 @@ class DistrictSet:
         Returns the sum of all the _votes_per_member for each district in self._districts
         """
         count = 0
-        for district in self._districts:
+        for district in self.districts():
             count += district.votes_per_member()
         return count
 
-    def min_votes_district(self):
-        min_district = self.districts[0]
-        for district in self.districts:
-            if district.norm_bpi < min_district.norm_bpi:
+    def min_norm_bpi_district(self):
+        """
+        Returns the district with the lowest norm_bpi
+        """
+        min_district = self.districts()[0]
+        for district in self.districts():
+            if district.norm_bpi() < min_district.norm_bpi():
                 min_district = district
         return min_district
 
-    def max_votes_district(self):
-        max_district = self.districts[0]
-        for district in self.districts:
-            if district.norm_bpi > max_district.norm_bpi:
+    def max_norm_bpi_district(self):
+        """
+        Returns the district with the highest norm_bpi
+        """
+        max_district = self.districts()[0]
+        for district in self.districts():
+            if district.norm_bpi() > max_district.norm_bpi():
                 max_district = district
         return max_district
 
     def fix_votes(self):
+        """
+        After adjusting votes to new scale, balances votes to make sure it is equal to total number of votes for the current iteration
+        """
         count = self.sum_of_votes()
         # print("votes", count)
-        for district in self.districts:
-            if district.votes_per_member == 0:
-                district.votes_per_member = 1
 
+        # Make sure there are no districts with 0 votes
+        for district in self.districts:
+            if district.votes_per_member() == 0:
+                district.votes_per_member(1)
+                count += 1
+
+        # If the count is less than the votes required, add votes to the lowest district
         while count < self.votes:
-            self.min_votes_district().votes_per_member += 1
+            min_district = self.min_norm_bpi_district()
+            min_district.votes_per_member(min_district.votes_per_member()+1)
             count += 1
             generate_bpi_data(self, self.votes//2+1)
             for district in self.districts:
-                district.norm_bpi = district.bpi - district.population_proportion
+                district.bpi_diff(district.norm_bpi() -
+                                  district.population_proportion())
+
+        # If the count is less than the votes required, add votes to the highest district
         while count > self.votes:
-            self.max_votes_district().votes_per_member -= 1
+            max_district = self.max_norm_bpi_district()
+            max_district.votes_per_member(max_district.votes_per_member()-1)
             count -= 1
             generate_bpi_data(self, self.votes//2+1)
             for district in self.districts:
-                district.norm_bpi = district.bpi - district.population_proportion
+                district.bpi_diff(district.norm_bpi() -
+                                  district.population_proportion())
         # print("votes done", count)
+
+    def create_csv(self, outfile=None):
+        """
+        Creates a timestamped CSV containing the data of this DistrictSet
+        """
+        if outfile == None:
+            outfile = f'{self.date()}-{self.votes}'
+        headers = ['District Name', 'Population', 'Population Proportion',
+                   'Votes Per Member', 'Normalized BPI', 'BPI Diff']
+
+        open(outfile, 'w').close()
+        with open(outfile, 'w') as f:
+            f.write(f'50% BPI Sum,{self.norm_sum():0.7%}\n')
+            f.write(f'50% Franklin,{self.franklin():0.7%}\n')
+            # f.write(f'2/3 BPI Sum,{two_thirds_district_set.norm_sum:0.7%}\n')
+            # f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:0.7%}\n')
+            f.write(f'Total Votes,{self.votes}\n')
+            f.write(
+                'District Name,Population,Population Proportion,Votes Per Member,Normalized BPI,BPI Diff\n')
+            for district in self.districts():
+                data = district.print_data()
+                out_str = ''
+                for item in data:
+                    out_str += f'{data[item]},'
+                f.write(f'{out_str[:-1]}\n')
+            f.close()
+
+    def display_csv(self, infile):
+        with open(infile) as f:
+            lines = f.readlines()
+
+        # Comma Seperated List extracted from CSV
+        cs_list = []
+        for line in lines:
+            cs_list.append(line.removesuffix('\n').split(','))
+
+        # Table skips the header information
+        table = cs_list[3:]
+        print(f'Total Votes: {cs_list[2][1]}')
+
+        # Figure out the max width of each column
+        max_widths = [0]*len(table[0])
+        for col in len(table):
+            max_widths[col] = max(list(map(lambda row: len(row[col]), table)))
+
+        # Build the seperator string
+        for index in max_widths:
+            separator_string += f'+-{"":-<{max_widths[index]}}-'
+        separator_string += '+'
+
+        # Print the table
+        for row in table:
+            for index, col in enumerate(row):
+                print(f'| {col:<{max_widths[index]}} ', end='')
+            print('|')
+            if row % 5 == 0 and row < len(table):
+                print(separator_string)
+        print(separator_string)
+
+        # Print other information
+        for index in range(2):
+            print(f'{cs_list[index][0]}: {cs_list[index][1]}')
+        print()
 
     def display_table(self, keys):
         print_data = []
