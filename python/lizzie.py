@@ -41,7 +41,8 @@ def nice_print(data):
     print(row_seperator)
     for index, item in enumerate(data, start=1):
         print(f'| {index:>{max_len}} ', end='')
-        print(f'| {f"{item:{max_per_len},.5%}":^5} ', end='')
+        # print(f'| {f"{item:{max_per_len},.5%}":^5} ', end='')
+        print(f'| {f"{item:{max_per_len}}":^5} ', end='')
         print('|')
         if index % 5 == 0:
             print(row_seperator)

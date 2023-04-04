@@ -59,4 +59,4 @@ def build_f(q, S, p_i):
     return table
 
 
-print(calc_bpi(test))
+# print(calc_bpi(test))

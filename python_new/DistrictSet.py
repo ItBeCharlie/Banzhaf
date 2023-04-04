@@ -202,7 +202,7 @@ class DistrictSet:
         Creates a timestamped CSV containing the data of this DistrictSet
         """
         if outfile == None:
-            outfile = f'{self.date()}-{self.votes}'
+            outfile = f'{self.date()}-{self.votes()}'
         headers = ['District Name', 'Population', 'Population Proportion',
                    'Votes Per Member', 'Normalized BPI', 'BPI Diff']
 
@@ -212,7 +212,7 @@ class DistrictSet:
             f.write(f'50% Franklin,{self.franklin():0.7%}\n')
             # f.write(f'2/3 BPI Sum,{two_thirds_district_set.norm_sum:0.7%}\n')
             # f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:0.7%}\n')
-            f.write(f'Total Votes,{self.votes}\n')
+            f.write(f'Total Votes,{self.votes()}\n')
             f.write(
                 'District Name,Population,Population Proportion,Votes Per Member,Normalized BPI,BPI Diff\n')
             for district in self.districts():
