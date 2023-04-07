@@ -9,6 +9,8 @@ def main():
 
     print(time)
     district_set = test_read('case1.txt')
+    
+    
 
 
 def test_read(file):

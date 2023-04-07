@@ -6,8 +6,9 @@ from District import District
 def main():
     print('1: BPI Calculator')
     print('2: Weighed Vote Optimizer')
+    print('3: Weighed Vote Optimizer (Custom Votes)')
     mode = int(input('Select Mode: '))
-    if mode not in [1, 2]:
+    if mode not in [1, 2, 3]:
         print('Error: Invalid Mode')
         exit()
     file = input('Enter csv file: ')
@@ -19,16 +20,21 @@ def main():
         data.append(int(dat))
 
     if mode == 1:
+        # data.insert(0, sum(data)//2+1)
         result = calc_bpi(data)
         nice_print(result)
 
-    elif mode == 2:
-        votes = 100
+    elif mode in [2, 3]:
+        if mode == 3:
+            votes = int(input('Enter total votes: '))
+        else:
+            votes = 100
         districts = []
         for index, population in enumerate(data):
-            district = District(index)
+            district = District(index+1)
             district.population = int(population)
             districts.append(district)
+
         calc(districts, votes)
 
 
@@ -41,8 +47,7 @@ def nice_print(data):
     print(row_seperator)
     for index, item in enumerate(data, start=1):
         print(f'| {index:>{max_len}} ', end='')
-        # print(f'| {f"{item:{max_per_len},.5%}":^5} ', end='')
-        print(f'| {f"{item:{max_per_len}}":^5} ', end='')
+        print(f'| {f"{item:{max_per_len},.5%}":^5} ', end='')
         print('|')
         if index % 5 == 0:
             print(row_seperator)

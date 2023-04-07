@@ -17,6 +17,11 @@ def run_program(districts, votes):
     districts.display_table(['District', 'Population', 'Pop. Proportion',
                              '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
+    print(
+        f'Franklin: {districts.franklin:.10%}\nBPI Sum:  {districts.norm_sum:.10%}')
+
+    exit()
+
     orig_districts = districts.clone()
     votes = 0
 
@@ -24,9 +29,6 @@ def run_program(districts, votes):
     threshold = 0.0001
     best_franklin = 99999
     best_set = districts.clone()
-
-    print(
-        f'Franklin: {districts.franklin:.10%}\nBPI Sum:  {districts.norm_sum:.10%}')
 
     district_sets = []
     two_thirds_district_sets = []

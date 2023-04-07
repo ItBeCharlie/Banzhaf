@@ -22,6 +22,8 @@ def calc_bpi_single_thread(data):
 
     # print(q, S)
 
+    # print(S)
+
     scores = []
 
     for index, p in enumerate(S, start=1):
@@ -31,7 +33,8 @@ def calc_bpi_single_thread(data):
             w_sum += f[-2][y]
         # print(w_sum)
         scores.append(w_sum)
-    # print(scores)
+        # print(p, w_sum)
+    # print(scores, sum(scores))
     return normalize_score(scores)
 
 
@@ -104,6 +107,7 @@ def build_f(q, S, p_i):
     table[0][0] = 1
 
     S[p_i-1], S[-1] = S[-1], S[p_i-1]
+    # print(p_i-1)
     player_labels[p_i], player_labels[-1] = player_labels[-1], player_labels[p_i]
     for index in range(1, len(S)+1):
         for y in range(q):
@@ -117,6 +121,7 @@ def build_f(q, S, p_i):
                 table[index][y] = table[index-1][y]
 
     # pt(table=table, y_names=player_labels, key=player_labels[-1])
+    # S[p_i-1], S[-1] = S[-1], S[p_i-1]
     return table
 
 
