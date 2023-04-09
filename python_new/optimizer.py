@@ -9,6 +9,7 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
     # district_set.display_table(['District', 'Population', 'Pop. Proportion',
     # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
+    # Current best score achieved by the optimizer
     best_score = district_set.bpi_diff_score()
     original_score = best_score
     original_franklin = orig_district_set.franklin_score()
@@ -16,22 +17,20 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
 
     number_of_districts = len(district_set.districts)
 
+    # Used to ensure each iteration has a unique set of votes
     votes_list_cache = []
     votes_list_cache.append(extract_votes(district_set))
 
     print()
-    loading_bar(0, iterations)
-    start_time = time.perf_counter()
     iteration = 0
     while iteration < iterations:
-        loading_bar(iteration, iterations)
 
-        district_set.sort_districts(key='Normalized BPI Score')
+        district_set.sort_districts(key='bpi_diff')
 
         min_index = 0
-        max_index = len(district_set.districts) - 1
+        max_index = number_of_districts - 1
 
-        old_score = district_set.get_val(key=score_metric)
+        old_score = district_set.bpi_diff_score()
         cur_scores = {}
 
         while max_index > min_index:
@@ -39,13 +38,13 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
                 district_set.clone(), min_index, max_index, trace=trace)
 
             if valid_district_set:
-                new_score = new_district_set.get_val(key=score_metric)
+                new_score = new_district_set.bpi_score_diff()
                 cur_scores[new_score] = new_district_set.clone()
 
             if trace:
                 display_copy = new_district_set.clone()
 
-                display_copy.sort_districts('District')
+                display_copy.sort_districts(key='id')
                 print(
                     f'Min Index: {display_copy.districts[min_index].number}\nMax Index: {display_copy.districts[max_index].number}')
                 if valid_district_set:
@@ -53,8 +52,8 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
                 else:
                     print()
 
-                display_copy.display_table([
-                    'District', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+                # display_copy.display_table([
+                #     'District', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
             min_index, max_index = brute_force_approach(
                 number_of_districts, min_index, max_index)
@@ -75,12 +74,10 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
 
         district_set = cur_scores[min_score].clone()
 
-        district_set.update_data()
-
         if trace:
             print(f'Old Score: {old_score}\nNew Score: {min_score}\n')
 
-        district_set.sort_districts(key='District')
+        district_set.sort_districts(key='id')
         if min_score < best_score:
             # print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
             # district_set.display_table(['District', 'Population', 'Pop. Proportion', '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
@@ -101,18 +98,10 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
 
         iteration += 1
 
-    end_time = time.perf_counter()
-
-    loading_bar(iteration, iterations)
-    print(f'\nTotal time: {end_time-start_time}s')
-
-    print(f'Original Score: {format_percentage(original_score, 10)}\nBest Score:     {format_percentage(best_score, 10)}\n\nOriginal Frankin: {format_percentage((original_franklin), 10)}\nNew Franklin:     {format_percentage((best_config.franklin), 10)}\n')
+    # print(f'Original Score: {format_percentage(original_score, 10)}\nBest Score:     {format_percentage(best_score, 10)}\n\nOriginal Frankin: {format_percentage((original_franklin), 10)}\nNew Franklin:     {format_percentage((best_config.franklin), 10)}\n')
 
     # display_table(districts, ['District', 'Population', 'Pop. Proportion',
     # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
-
-    update_log('iterations', iteration, 'add', 'int')
-    update_log('time', end_time-start_time, 'add', 'float')
 
     if best_config.franklin > original_franklin:
         return orig_district_set
@@ -121,7 +110,7 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
 
 def extract_votes(district_set):
     district_set = district_set.clone()
-    district_set.sort_districts(key='District')
+    district_set.sort_districts(key='id')
     votes_list = []
     for district in district_set.districts:
         votes_list.append(district.votes_per_member)
@@ -140,7 +129,7 @@ def step(district_set: DistrictSet, min_index, max_index, trace=False):
     if district_set.districts[max_index].votes_per_member < 2:
         return district_set, False
 
-    district_set.sort_districts('District')
+    district_set.sort_districts(key='id')
 
     district_set.generate_data(update_votes=False, update_pop_prop=False)
 
@@ -157,7 +146,3 @@ def brute_force_approach(number_of_districts, min_index, max_index):
         max_index -= 1
 
     return min_index, max_index
-
-
-def loading_bar(cur_iteration, max_iterations):
-    print(f'\rIterations: {cur_iteration} / {max_iterations}', end='')
