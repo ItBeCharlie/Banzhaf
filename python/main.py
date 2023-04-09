@@ -20,8 +20,6 @@ def run_program(districts, votes):
     print(
         f'Franklin: {districts.franklin:.10%}\nBPI Sum:  {districts.norm_sum:.10%}')
 
-    exit()
-
     orig_districts = districts.clone()
     votes = 0
 
