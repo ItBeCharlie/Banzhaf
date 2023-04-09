@@ -5,7 +5,7 @@ from helper import generate_bpi_data, generate_data
 
 
 class DistrictSet:
-    def __init__(self, districts, votes, date, initial=False):
+    def __init__(self, districts, votes, date, initial=False, clone=False):
         """
         _districts: List of District Objects
 
@@ -14,7 +14,8 @@ class DistrictSet:
         self._districts = self.update_districts(districts)
         self._votes = votes
         self._date = date
-        self.generate_data(update_votes=initial, update_pop_prop=initial)
+        if not clone:
+            self.generate_data(update_votes=initial, update_pop_prop=initial)
 
     @property
     def districts(self):
@@ -87,18 +88,21 @@ class DistrictSet:
         new_districts = []
         for district in self._districts:
             new_districts.append(district.clone())
-        new_set = DistrictSet(new_districts, self._votes)
+        new_set = DistrictSet(new_districts, self.votes(),
+                              self.date(), clone=True)
         # new_set.override_votes(new_districts)
         return new_set
 
     def generate_data(self, update_votes=False, update_pop_prop=False, quota=None):
+        # If no quota, set to 50%+1
         if quota == None:
-            quota = self.votes//2+1
+            quota = self.votes()//2+1
+
         if update_pop_prop:
             total_population = 0
-            for district in self.districts:
-                total_population += district.population
-            for district in self.districts:
+            for district in self.districts():
+                total_population += district.population()
+            for district in self.districts():
                 district.set_val('Pop. Proportion',
                                  district.population/total_population)
         if update_votes:
@@ -260,61 +264,15 @@ class DistrictSet:
             print(f'{cs_list[index][0]}: {cs_list[index][1]}')
         print()
 
-    def display_table(self, keys):
-        print_data = []
-        max_lengths = dict.fromkeys(keys)
-
-        for key in keys:
-            if key == 'BPI Score':
-                max_lengths[key] = len('Normalized BPI')
-            elif key == 'Normalized BPI Score':
-                max_lengths[key] = len('BPI Diff')
-            else:
-                max_lengths[key] = len(key)
-
-        for district in self.districts:
-            cur_data = district.print_data(keys)
-            print_data.append(cur_data)
-            for key in keys:
-                max_lengths[key] = max(max_lengths[key], len(cur_data[key]))
-
-        # print(max_lengths)
-
-        separator_string = ''
-
-        for key in max_lengths:
-            separator_string += f'+-{"":-<{max_lengths[key]}}-'
-        separator_string += '+'
-        print(separator_string)
-
-        for key in keys:
-            if key == 'BPI Score':
-                print(f'| {"Normalized BPI":<{max_lengths[key]}} ', end='')
-            elif key == 'Normalized BPI Score':
-                print(f'| {"BPI Diff":<{max_lengths[key]}} ', end='')
-            else:
-                print(f'| {key:<{max_lengths[key]}} ', end='')
-        print('|')
-
-        print(separator_string)
-
-        for row, data in enumerate(print_data, start=1):
-            for key in keys:
-                print(f'| {data[key]:<{max_lengths[key]}} ', end='')
-            print('|')
-            if row % 5 == 0 and row < len(print_data):
-                print(separator_string)
-
-        print(separator_string, end='\n\n')
-
-    def sort_districts(self, key='District', reverse=False):
+    def sort_districts(self, key='id', reverse=False):
         """
+        Reorders the districts list based on the specified key
+
         ## Valid Keys:
-        District | 
-        Population | 
-        Pop. Proportion | 
-        '# Votes / Member' | 
-        Normalized BPI Score | 
-        BPI Score | 
+        id (default)
+        bpi_diff
         """
-        self.districts.sort(key=lambda x: x.get_val(key), reverse=reverse)
+        if key == 'id':
+            self.districts.sort(key=lambda x: x.id(), reverse=reverse)
+        elif key == 'bpi_diff':
+            self.districts.sort(key=lambda x: x.bpi_diff(), reverse=reverse)
