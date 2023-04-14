@@ -9,8 +9,6 @@ def main():
 
     print(time)
     district_set = test_read('case1.txt')
-    
-    
 
 
 def test_read(file):
@@ -20,7 +18,7 @@ def test_read(file):
     votes = int(lines[0])
     districts = []
     for i in range(1, len(lines)):
-        districts.append(District(i-1))
+        districts.append(District(str(i-1), i-1))
         districts.population(int(lines[i]))
 
     return DistrictSet(districts, votes, time)
