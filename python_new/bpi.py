@@ -3,13 +3,13 @@ from pretty_print import pretty_table as pt
 test = [6, 4, 3, 2, 1]
 
 
-def calc_bpi(data):
-    return calc_bpi_single_thread(data)
+def calc_bpi(quota, votes):
+    return calc_bpi_single_thread(quota, votes)
 
 
-def calc_bpi_single_thread(data):
-    q = data[0]
-    S = data[1:]
+def calc_bpi_single_thread(quota, votes):
+    q = quota
+    S = votes
 
     # print(q, S)
 
