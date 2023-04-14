@@ -107,7 +107,7 @@ class DistrictSet:
         if update_votes:
             for district in self.districts:
                 district.votes_per_member(
-                    district.population_proportion()*self.votes)
+                    district.population_proportion()*self.votes())
 
         self.calculate_bpi_data(quota)
 
@@ -194,24 +194,26 @@ class DistrictSet:
                 count += 1
 
         # If the count is less than the votes required, add votes to the lowest district
-        while count < self.votes:
+        while count < self.votes():
+            # Find district with lowest norm_bpi
             min_district = self.min_norm_bpi_district()
+            # Add vote to that district
             min_district.votes_per_member(min_district.votes_per_member()+1)
+            # Update current total of votes
             count += 1
-            generate_bpi_data(self, self.votes//2+1)
-            for district in self.districts:
-                district.bpi_diff(district.norm_bpi() -
-                                  district.population_proportion())
+            # Calculate bpi based on current number of votes as quota parameter (changed from total votes previously)
+            self.calculate_bpi_data(count//2+1)
 
         # If the count is less than the votes required, add votes to the highest district
-        while count > self.votes:
+        while count > self.votes():
+            # Find district with highest norm_bpi
             max_district = self.max_norm_bpi_district()
+            # Subtract vote from that district
             max_district.votes_per_member(max_district.votes_per_member()-1)
+            # Update current total of votes
             count -= 1
-            generate_bpi_data(self, self.votes//2+1)
-            for district in self.districts:
-                district.bpi_diff(district.norm_bpi() -
-                                  district.population_proportion())
+            # Calculate bpi based on current number of votes as quota parameter (changed from total votes previously)
+            self.calculate_bpi_data(count//2+1)
         # print("votes done", count)
 
     def create_csv(self, outfile=None):
