@@ -1,7 +1,6 @@
 from copy import deepcopy
+from bpi import calc_bpi
 import datetime
-
-from helper import generate_bpi_data, generate_data
 
 
 class DistrictSet:
@@ -103,18 +102,33 @@ class DistrictSet:
             for district in self.districts():
                 total_population += district.population()
             for district in self.districts():
-                district.set_val('Pop. Proportion',
-                                 district.population/total_population)
+                district.population_proportion(
+                    district.population()/total_population)
         if update_votes:
             for district in self.districts:
-                district.set_val(
-                    '# Votes / Member', district.population_proportion*self.votes)
+                district.votes_per_member(
+                    district.population_proportion()*self.votes)
 
-        generate_bpi_data(self, quota)
-        for district in self.districts:
-            district.norm_bpi = district.bpi - district.population_proportion
+        self.calculate_bpi_data(quota)
 
-        self.update_data()
+    def calculate_bpi_data(self, quota):
+        """
+        Call the BPI algorithm, recompute the indexes for each district, and update the new bpi diffs
+        """
+        # Formating the data for the BPI calculator
+        # Extract the votes from each district into a seperate list
+        district_votes = []
+        for district in self.districts():
+            district_votes.append(district.votes_per_member())
+
+        # Calculate the normalized bpis
+        new_bpis = calc_bpi(quota, district_votes)
+
+        # Set the BPIs and calculate the diffs
+        for index, district in enumerate(self.districts):
+            district.norm_bpi(new_bpis[index])
+            district.bpi_diff(district.norm_bpi() -
+                              district.population_proportion())
 
     def override_votes(self, district_set):
         """
@@ -128,9 +142,8 @@ class DistrictSet:
         vote_scale = self.votes() / district_set.votes()
         print(vote_scale)
 
-        # TODO: THIS WILL NEED TO BE CHANGED
-        self.sort_districts('District')
-        district_set.sort_districts('District')
+        self.sort_districts(key='id')
+        district_set.sort_districts(key='id')
 
         for index, district in enumerate(self.districts()):
             district.votes_per_member(
