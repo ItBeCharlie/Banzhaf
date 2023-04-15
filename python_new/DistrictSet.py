@@ -130,24 +130,28 @@ class DistrictSet:
             district.bpi_diff(district.norm_bpi() -
                               district.population_proportion())
 
-    def override_votes(self, district_set):
+    def override_votes(self, new_votes):
         """
-        Adjusts the current votes to the votes of the district_set that is passed
+        Adjusts the current votes to the desired number of votes new_votes
 
-        Then by comparing the votes between the two sets, it will adjust the _votes_per_member of the districts in the current district_set
+        Adjusts the _votes_per_member of the districts in the current district_set by the ratio between new_votes and the current votes
 
         After the adjustment, self.fix_votes() is called to bring the number of votes back to the correct value
         """
-        print(self.votes(), district_set.votes())
-        vote_scale = self.votes() / district_set.votes()
+        print(new_votes, self.votes())
+
+        # Get the ratio between new and current votes
+        vote_scale = new_votes / self.votes()
         print(vote_scale)
 
-        self.sort_districts(key='id')
-        district_set.sort_districts(key='id')
+        # Set the votes to be the new_votes
+        self.votes(new_votes)
 
-        for index, district in enumerate(self.districts()):
-            district.votes_per_member(
-                district_set.districts()[index].votes_per_member() * vote_scale)
+        # Scale the votes for each district by this ratio as a first approximation
+        for district in self.districts():
+            district.votes_per_member(district.votes_per_member() * vote_scale)
+
+        # Fix the votes to be the exact value of new votes
         self.fix_votes()
         self.generate_data()
 
@@ -188,7 +192,7 @@ class DistrictSet:
         # print("votes", count)
 
         # Make sure there are no districts with 0 votes
-        for district in self.districts:
+        for district in self.districts():
             if district.votes_per_member() == 0:
                 district.votes_per_member(1)
                 count += 1
