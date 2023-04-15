@@ -15,7 +15,7 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
     original_franklin = orig_district_set.franklin_score()
     best_config = district_set.clone()
 
-    number_of_districts = len(district_set.districts)
+    number_of_districts = len(district_set.districts())
 
     # Used to ensure each iteration has a unique set of votes
     votes_list_cache = []
@@ -92,9 +92,9 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
         else:
             votes_list_cache.append(extracted_votes)
 
-        if trace:
-            district_set.display_table(['District', 'Population', 'Pop. Proportion',
-                                        '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
+        # if trace:
+        #     district_set.display_table(['District', 'Population', 'Pop. Proportion',
+        #                                 '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
         iteration += 1
 
