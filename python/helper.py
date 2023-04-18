@@ -48,7 +48,7 @@ def generate_bpi_data(district_set, quota):
     bpi_data = [None] * len(districts)
 
     for district in districts:
-        bpi_data[district.number - 1] = int(district.votes_per_member)
+        bpi_data[district.number-1] = int(district.votes_per_member)
         # print(district.number, sum)
 
     bpi_data.insert(0, quota)

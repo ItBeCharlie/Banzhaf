@@ -1,11 +1,10 @@
 from copy import deepcopy
+from bpi import calc_bpi
 import datetime
-
-from helper import generate_bpi_data, generate_data
 
 
 class DistrictSet:
-    def __init__(self, districts, votes, date, initial=False):
+    def __init__(self, districts, votes, date, initial=False, clone=False):
         """
         _districts: List of District Objects
 
@@ -14,7 +13,8 @@ class DistrictSet:
         self._districts = self.update_districts(districts)
         self._votes = votes
         self._date = date
-        self.generate_data(update_votes=initial, update_pop_prop=initial)
+        if not clone:
+            self.generate_data(update_votes=initial, update_pop_prop=initial)
 
     @property
     def districts(self):
@@ -87,50 +87,71 @@ class DistrictSet:
         new_districts = []
         for district in self._districts:
             new_districts.append(district.clone())
-        new_set = DistrictSet(new_districts, self._votes)
+        new_set = DistrictSet(new_districts, self.votes(),
+                              self.date(), clone=True)
         # new_set.override_votes(new_districts)
         return new_set
 
     def generate_data(self, update_votes=False, update_pop_prop=False, quota=None):
+        # If no quota, set to 50%+1
         if quota == None:
-            quota = self.votes//2+1
+            quota = self.votes()//2+1
+
         if update_pop_prop:
             total_population = 0
-            for district in self.districts:
-                total_population += district.population
-            for district in self.districts:
-                district.set_val('Pop. Proportion',
-                                 district.population/total_population)
+            for district in self.districts():
+                total_population += district.population()
+            for district in self.districts():
+                district.population_proportion(
+                    district.population()/total_population)
         if update_votes:
             for district in self.districts:
-                district.set_val(
-                    '# Votes / Member', district.population_proportion*self.votes)
+                district.votes_per_member(
+                    district.population_proportion()*self.votes())
 
-        generate_bpi_data(self, quota)
-        for district in self.districts:
-            district.norm_bpi = district.bpi - district.population_proportion
+        self.calculate_bpi_data(quota)
 
-        self.update_data()
-
-    def override_votes(self, district_set):
+    def calculate_bpi_data(self, quota):
         """
-        Adjusts the current votes to the votes of the district_set that is passed
+        Call the BPI algorithm, recompute the indexes for each district, and update the new bpi diffs
+        """
+        # Formating the data for the BPI calculator
+        # Extract the votes from each district into a seperate list
+        district_votes = []
+        for district in self.districts():
+            district_votes.append(district.votes_per_member())
 
-        Then by comparing the votes between the two sets, it will adjust the _votes_per_member of the districts in the current district_set
+        # Calculate the normalized bpis
+        new_bpis = calc_bpi(quota, district_votes)
+
+        # Set the BPIs and calculate the diffs
+        for index, district in enumerate(self.districts):
+            district.norm_bpi(new_bpis[index])
+            district.bpi_diff(district.norm_bpi() -
+                              district.population_proportion())
+
+    def override_votes(self, new_votes):
+        """
+        Adjusts the current votes to the desired number of votes new_votes
+
+        Adjusts the _votes_per_member of the districts in the current district_set by the ratio between new_votes and the current votes
 
         After the adjustment, self.fix_votes() is called to bring the number of votes back to the correct value
         """
-        print(self.votes(), district_set.votes())
-        vote_scale = self.votes() / district_set.votes()
+        print(new_votes, self.votes())
+
+        # Get the ratio between new and current votes
+        vote_scale = new_votes / self.votes()
         print(vote_scale)
 
-        # TODO: THIS WILL NEED TO BE CHANGED
-        self.sort_districts('District')
-        district_set.sort_districts('District')
+        # Set the votes to be the new_votes
+        self.votes(new_votes)
 
-        for index, district in enumerate(self.districts()):
-            district.votes_per_member(
-                district_set.districts()[index].votes_per_member() * vote_scale)
+        # Scale the votes for each district by this ratio as a first approximation
+        for district in self.districts():
+            district.votes_per_member(district.votes_per_member() * vote_scale)
+
+        # Fix the votes to be the exact value of new votes
         self.fix_votes()
         self.generate_data()
 
@@ -171,30 +192,32 @@ class DistrictSet:
         # print("votes", count)
 
         # Make sure there are no districts with 0 votes
-        for district in self.districts:
+        for district in self.districts():
             if district.votes_per_member() == 0:
                 district.votes_per_member(1)
                 count += 1
 
         # If the count is less than the votes required, add votes to the lowest district
-        while count < self.votes:
+        while count < self.votes():
+            # Find district with lowest norm_bpi
             min_district = self.min_norm_bpi_district()
+            # Add vote to that district
             min_district.votes_per_member(min_district.votes_per_member()+1)
+            # Update current total of votes
             count += 1
-            generate_bpi_data(self, self.votes//2+1)
-            for district in self.districts:
-                district.bpi_diff(district.norm_bpi() -
-                                  district.population_proportion())
+            # Calculate bpi based on current number of votes as quota parameter (changed from total votes previously)
+            self.calculate_bpi_data(count//2+1)
 
         # If the count is less than the votes required, add votes to the highest district
-        while count > self.votes:
+        while count > self.votes():
+            # Find district with highest norm_bpi
             max_district = self.max_norm_bpi_district()
+            # Subtract vote from that district
             max_district.votes_per_member(max_district.votes_per_member()-1)
+            # Update current total of votes
             count -= 1
-            generate_bpi_data(self, self.votes//2+1)
-            for district in self.districts:
-                district.bpi_diff(district.norm_bpi() -
-                                  district.population_proportion())
+            # Calculate bpi based on current number of votes as quota parameter (changed from total votes previously)
+            self.calculate_bpi_data(count//2+1)
         # print("votes done", count)
 
     def create_csv(self, outfile=None):
@@ -202,7 +225,7 @@ class DistrictSet:
         Creates a timestamped CSV containing the data of this DistrictSet
         """
         if outfile == None:
-            outfile = f'{self.date()}-{self.votes}'
+            outfile = f'{self.date()}-{self.votes()}'
         headers = ['District Name', 'Population', 'Population Proportion',
                    'Votes Per Member', 'Normalized BPI', 'BPI Diff']
 
@@ -212,7 +235,7 @@ class DistrictSet:
             f.write(f'50% Franklin,{self.franklin():0.7%}\n')
             # f.write(f'2/3 BPI Sum,{two_thirds_district_set.norm_sum:0.7%}\n')
             # f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:0.7%}\n')
-            f.write(f'Total Votes,{self.votes}\n')
+            f.write(f'Total Votes,{self.votes()}\n')
             f.write(
                 'District Name,Population,Population Proportion,Votes Per Member,Normalized BPI,BPI Diff\n')
             for district in self.districts():
@@ -260,61 +283,15 @@ class DistrictSet:
             print(f'{cs_list[index][0]}: {cs_list[index][1]}')
         print()
 
-    def display_table(self, keys):
-        print_data = []
-        max_lengths = dict.fromkeys(keys)
-
-        for key in keys:
-            if key == 'BPI Score':
-                max_lengths[key] = len('Normalized BPI')
-            elif key == 'Normalized BPI Score':
-                max_lengths[key] = len('BPI Diff')
-            else:
-                max_lengths[key] = len(key)
-
-        for district in self.districts:
-            cur_data = district.print_data(keys)
-            print_data.append(cur_data)
-            for key in keys:
-                max_lengths[key] = max(max_lengths[key], len(cur_data[key]))
-
-        # print(max_lengths)
-
-        separator_string = ''
-
-        for key in max_lengths:
-            separator_string += f'+-{"":-<{max_lengths[key]}}-'
-        separator_string += '+'
-        print(separator_string)
-
-        for key in keys:
-            if key == 'BPI Score':
-                print(f'| {"Normalized BPI":<{max_lengths[key]}} ', end='')
-            elif key == 'Normalized BPI Score':
-                print(f'| {"BPI Diff":<{max_lengths[key]}} ', end='')
-            else:
-                print(f'| {key:<{max_lengths[key]}} ', end='')
-        print('|')
-
-        print(separator_string)
-
-        for row, data in enumerate(print_data, start=1):
-            for key in keys:
-                print(f'| {data[key]:<{max_lengths[key]}} ', end='')
-            print('|')
-            if row % 5 == 0 and row < len(print_data):
-                print(separator_string)
-
-        print(separator_string, end='\n\n')
-
-    def sort_districts(self, key='District', reverse=False):
+    def sort_districts(self, key='id', reverse=False):
         """
+        Reorders the districts list based on the specified key
+
         ## Valid Keys:
-        District | 
-        Population | 
-        Pop. Proportion | 
-        '# Votes / Member' | 
-        Normalized BPI Score | 
-        BPI Score | 
+        id (default)
+        bpi_diff
         """
-        self.districts.sort(key=lambda x: x.get_val(key), reverse=reverse)
+        if key == 'id':
+            self.districts.sort(key=lambda x: x.id(), reverse=reverse)
+        elif key == 'bpi_diff':
+            self.districts.sort(key=lambda x: x.bpi_diff(), reverse=reverse)

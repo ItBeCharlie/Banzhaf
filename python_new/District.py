@@ -1,6 +1,8 @@
 class District:
-    def __init__(self, name):
+    def __init__(self, name: str, id: int):
         """
+        _id: Numerical Id used for storing the original input order
+
         _name: Name/Title of District
 
         _population: Population of District
@@ -13,12 +15,17 @@ class District:
 
         _bpi_diff: _norm_bpi - _population_proportion
         """
+        self._id = id
         self._name = name
         self._population = None
         self._population_proportion = None
         self._votes_per_member = None
         self._norm_bpi = None
         self._bpi_diff = None
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def name(self):
@@ -104,10 +111,10 @@ class District:
         """
         Returns a clone of the district with unique pointers for each variable
         """
-        copy = District(self._name)
-        copy.population(self._population)
-        copy.population_proportion(self._population_proportion)
-        copy.votes_per_member(self._votes_per_member)
-        copy.norm_bpi(self._norm_bpi)
-        copy.bpi_diff(self._bpi_diff)
+        copy = District(self.name(), self.id())
+        copy.population(self.population())
+        copy.population_proportion(self.population_proportion())
+        copy.votes_per_member(self.votes_per_member())
+        copy.norm_bpi(self.norm_bpi())
+        copy.bpi_diff(self.bpi_diff())
         return copy
