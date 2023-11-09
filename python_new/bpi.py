@@ -38,6 +38,7 @@ def normalize_score(scores):
 
 def build_f(q, S, p_i):
     player_labels = [f'p{i}' for i in range(len(S)+1)]
+    q = int(q)
 
     table = [[0]*q for i in range(len(S))]
     table[0][0] = 1
@@ -55,7 +56,7 @@ def build_f(q, S, p_i):
             else:
                 table[index][y] = table[index-1][y]
 
-    pt(table=table, y_names=player_labels, key=player_labels[-1])
+    # pt(table=table, y_names=player_labels, key=player_labels[-1])
     return table
 
 

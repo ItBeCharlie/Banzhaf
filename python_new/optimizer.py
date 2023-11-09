@@ -12,10 +12,11 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
     # Current best score achieved by the optimizer
     best_score = district_set.bpi_diff_score()
     original_score = best_score
-    original_franklin = orig_district_set.franklin_score()
+    orig_district_set.franklin_score()
+    original_franklin = orig_district_set.franklin
     best_config = district_set.clone()
 
-    number_of_districts = len(district_set.districts())
+    number_of_districts = len(district_set.districts)
 
     # Used to ensure each iteration has a unique set of votes
     votes_list_cache = []
@@ -38,7 +39,7 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
                 district_set.clone(), min_index, max_index, trace=trace)
 
             if valid_district_set:
-                new_score = new_district_set.bpi_score_diff()
+                new_score = new_district_set.bpi_diff_score()
                 cur_scores[new_score] = new_district_set.clone()
 
             if trace:
@@ -67,7 +68,7 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
         #         print(f'Keys: {cur_scores.keys()}\nMin Sum: {min_score}\n')
 
         min_score = cur_scores_keys[0]
-        if random.random() < 0.2:
+        if random.random() < 0.2:   # TODO: add seed potentially
             # print(list(cur_scores.keys()))
             min_score = cur_scores_keys[1]
             # print('RAND')
@@ -103,17 +104,18 @@ def optimize(district_set: DistrictSet, trace=False, iterations=50):
     # display_table(districts, ['District', 'Population', 'Pop. Proportion',
     # '# Votes / Member', 'BPI Score', 'Normalized BPI Score'])
 
-    if best_config.franklin() > original_franklin:
-        return orig_district_set
-    return best_config
+    best_config.franklin_score()
+    if best_config.franklin < original_franklin:
+        return best_config
+    return orig_district_set
 
 
 def extract_votes(input_district_set):
     district_set = input_district_set.clone()
     district_set.sort_districts(key='id')
     votes_list = []
-    for district in district_set.districts():
-        votes_list.append(district.votes_per_member())
+    for district in district_set.districts:
+        votes_list.append(district.votes_per_member)
     return votes_list
 
 
@@ -125,12 +127,12 @@ def step(district_set: DistrictSet, min_index, max_index, trace=False):
             f'Max: {str(district_set.districts()[max_index].id())} | {str(district_set.districts()[max_index].norm_bpi()*100)} | {max_index}', end='\n\n')
 
     # Add a vote to the min_index district
-    district_set.districts()[min_index].votes_per_member(
-        district_set.districts()[min_index].votes_per_member()+1)
+    district_set.districts[min_index].votes_per_member = (
+        district_set.districts[min_index].votes_per_member+1)
     # Subtract a vote to the max_index district
-    district_set.districts()[max_index].votes_per_member(
-        district_set.districts()[max_index].votes_per_member()-1)
-    if district_set.districts()[max_index].votes_per_member() < 2:
+    district_set.districts[max_index].votes_per_member = (
+        district_set.districts[max_index].votes_per_member-1)
+    if district_set.districts[max_index].votes_per_member < 2:
         return district_set, False
 
     district_set.sort_districts(key='id')

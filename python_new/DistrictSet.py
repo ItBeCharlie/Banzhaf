@@ -10,7 +10,8 @@ class DistrictSet:
 
         _votes: Number of votes in this system
         """
-        self._districts = self.update_districts(districts)
+        # self._districts
+        self.update_districts(districts)
         self._votes = votes
         self._date = date
         if not clone:
@@ -63,7 +64,7 @@ class DistrictSet:
         """
         top = [0, 0]
         for district in self._districts:
-            diff = abs(district.bpi_diff())
+            diff = abs(district.bpi_diff)
             if diff > top[1]:
                 top[1] = diff
             elif diff > top[0]:
@@ -77,7 +78,7 @@ class DistrictSet:
         """
         sum = 0
         for district in self._districts:
-            sum += abs(district.bpi_diff())
+            sum += abs(district.bpi_diff)
         return sum
 
     def clone(self):
@@ -87,27 +88,27 @@ class DistrictSet:
         new_districts = []
         for district in self._districts:
             new_districts.append(district.clone())
-        new_set = DistrictSet(new_districts, self.votes(),
-                              self.date(), clone=True)
+        new_set = DistrictSet(new_districts, self.votes,
+                              self._date, clone=True)
         # new_set.override_votes(new_districts)
         return new_set
 
     def generate_data(self, update_votes=False, update_pop_prop=False, quota=None):
         # If no quota, set to 50%+1
         if quota == None:
-            quota = self.votes()//2+1
+            quota = self.votes//2+1
 
         if update_pop_prop:
             total_population = 0
-            for district in self.districts():
-                total_population += district.population()
-            for district in self.districts():
-                district.population_proportion(
-                    district.population()/total_population)
-        if update_votes:
             for district in self.districts:
-                district.votes_per_member(
-                    district.population_proportion()*self.votes())
+                total_population += district.population
+            for district in self.districts:
+                district.population_proportion = (
+                    district.population/total_population)
+        if update_votes:
+            for district in self._districts:
+                district.votes_per_member = int(
+                    district.population_proportion*self.votes)
 
         self.calculate_bpi_data(quota)
 
@@ -118,17 +119,17 @@ class DistrictSet:
         # Formating the data for the BPI calculator
         # Extract the votes from each district into a seperate list
         district_votes = []
-        for district in self.districts():
-            district_votes.append(district.votes_per_member())
+        for district in self._districts:
+            district_votes.append(district.votes_per_member)
 
         # Calculate the normalized bpis
         new_bpis = calc_bpi(quota, district_votes)
 
         # Set the BPIs and calculate the diffs
         for index, district in enumerate(self.districts):
-            district.norm_bpi(new_bpis[index])
-            district.bpi_diff(district.norm_bpi() -
-                              district.population_proportion())
+            district.norm_bpi = (new_bpis[index])
+            district.bpi_diff = (district.norm_bpi -
+                              district.population_proportion)
 
     def override_votes(self, new_votes):
         """
@@ -138,18 +139,18 @@ class DistrictSet:
 
         After the adjustment, self.fix_votes() is called to bring the number of votes back to the correct value
         """
-        print(new_votes, self.votes())
+        print(new_votes, self.votes)
 
         # Get the ratio between new and current votes
-        vote_scale = new_votes / self.votes()
+        vote_scale = new_votes / self.votes
         print(vote_scale)
 
         # Set the votes to be the new_votes
-        self.votes(new_votes)
+        self.votes = (new_votes)
 
         # Scale the votes for each district by this ratio as a first approximation
-        for district in self.districts():
-            district.votes_per_member(district.votes_per_member() * vote_scale)
+        for district in self.districts:
+            district.votes_per_member = int(district.votes_per_member * vote_scale)
 
         # Fix the votes to be the exact value of new votes
         self.fix_votes()
@@ -160,17 +161,17 @@ class DistrictSet:
         Returns the sum of all the _votes_per_member for each district in self._districts
         """
         count = 0
-        for district in self.districts():
-            count += district.votes_per_member()
+        for district in self.districts:
+            count += district.votes_per_member
         return count
 
     def min_norm_bpi_district(self):
         """
         Returns the district with the lowest norm_bpi
         """
-        min_district = self.districts()[0]
-        for district in self.districts():
-            if district.norm_bpi() < min_district.norm_bpi():
+        min_district = self.districts[0]
+        for district in self.districts:
+            if district.norm_bpi < min_district.norm_bpi:
                 min_district = district
         return min_district
 
@@ -178,9 +179,9 @@ class DistrictSet:
         """
         Returns the district with the highest norm_bpi
         """
-        max_district = self.districts()[0]
-        for district in self.districts():
-            if district.norm_bpi() > max_district.norm_bpi():
+        max_district = self.districts[0]
+        for district in self.districts:
+            if district.norm_bpi > max_district.norm_bpi:
                 max_district = district
         return max_district
 
@@ -192,28 +193,28 @@ class DistrictSet:
         # print("votes", count)
 
         # Make sure there are no districts with 0 votes
-        for district in self.districts():
-            if district.votes_per_member() == 0:
-                district.votes_per_member(1)
+        for district in self.districts:
+            if district.votes_per_member == 0:
+                district.votes_per_member = (1)
                 count += 1
 
         # If the count is less than the votes required, add votes to the lowest district
-        while count < self.votes():
+        while count < self.votes:
             # Find district with lowest norm_bpi
             min_district = self.min_norm_bpi_district()
             # Add vote to that district
-            min_district.votes_per_member(min_district.votes_per_member()+1)
+            min_district.votes_per_member = (min_district.votes_per_member+1)
             # Update current total of votes
             count += 1
             # Calculate bpi based on current number of votes as quota parameter (changed from total votes previously)
             self.calculate_bpi_data(count//2+1)
 
         # If the count is less than the votes required, add votes to the highest district
-        while count > self.votes():
+        while count > self.votes:
             # Find district with highest norm_bpi
             max_district = self.max_norm_bpi_district()
             # Subtract vote from that district
-            max_district.votes_per_member(max_district.votes_per_member()-1)
+            max_district.votes_per_member(max_district.votes_per_member-1)
             # Update current total of votes
             count -= 1
             # Calculate bpi based on current number of votes as quota parameter (changed from total votes previously)
@@ -225,20 +226,20 @@ class DistrictSet:
         Creates a timestamped CSV containing the data of this DistrictSet
         """
         if outfile == None:
-            outfile = f'{self.date()}-{self.votes()}'
+            outfile = f'{self.date}-{self.votes}'
         headers = ['District Name', 'Population', 'Population Proportion',
                    'Votes Per Member', 'Normalized BPI', 'BPI Diff']
 
         open(outfile, 'w').close()
         with open(outfile, 'w') as f:
-            f.write(f'50% BPI Sum,{self.norm_sum():0.7%}\n')
-            f.write(f'50% Franklin,{self.franklin():0.7%}\n')
+            f.write(f'50% BPI Sum,{self.norm_sum:0.7%}\n')
+            f.write(f'50% Franklin,{self.franklin:0.7%}\n')
             # f.write(f'2/3 BPI Sum,{two_thirds_district_set.norm_sum:0.7%}\n')
             # f.write(f'2/3 Franklin,{two_thirds_district_set.franklin:0.7%}\n')
-            f.write(f'Total Votes,{self.votes()}\n')
+            f.write(f'Total Votes,{self.votes}\n')
             f.write(
                 'District Name,Population,Population Proportion,Votes Per Member,Normalized BPI,BPI Diff\n')
-            for district in self.districts():
+            for district in self.districts:
                 data = district.print_data()
                 out_str = ''
                 for item in data:
@@ -292,6 +293,6 @@ class DistrictSet:
         bpi_diff
         """
         if key == 'id':
-            self.districts.sort(key=lambda x: x.id(), reverse=reverse)
+            self.districts.sort(key=lambda x: x.id, reverse=reverse)
         elif key == 'bpi_diff':
-            self.districts.sort(key=lambda x: x.bpi_diff(), reverse=reverse)
+            self.districts.sort(key=lambda x: x.bpi_diff, reverse=reverse)

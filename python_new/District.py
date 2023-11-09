@@ -111,10 +111,10 @@ class District:
         """
         Returns a clone of the district with unique pointers for each variable
         """
-        copy = District(self.name(), self.id())
-        copy.population(self.population())
-        copy.population_proportion(self.population_proportion())
-        copy.votes_per_member(self.votes_per_member())
-        copy.norm_bpi(self.norm_bpi())
-        copy.bpi_diff(self.bpi_diff())
+        copy = District(self.name, self.id)
+        copy.population = (self.population)
+        copy.population_proportion = (self.population_proportion)
+        copy.votes_per_member = (self.votes_per_member)
+        copy.norm_bpi = (self.norm_bpi)
+        copy.bpi_diff = (self.bpi_diff)
         return copy
